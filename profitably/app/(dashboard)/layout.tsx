@@ -1,4 +1,5 @@
 import Sidebar from '@/components/layout/Sidebar'
+import BackToTop from '@/components/layout/BackToTop'
 
 export default function DashboardLayout({
   children,
@@ -11,6 +12,7 @@ export default function DashboardLayout({
       <main className="flex-1 md:pb-0 pb-20">
         {children}
       </main>
+      <BackToTop />
     </div>
   )
 }

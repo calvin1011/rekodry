@@ -353,27 +353,64 @@ export async function DELETE(request: Request) {
       .single()
 
     if (saleError || !sale) {
+      console.error('Sale not found:', saleError)
       return NextResponse.json({ error: 'Sale not found' }, { status: 404 })
     }
 
+    // Try to get the item (including archived items)
     const { data: item, error: itemError } = await supabase
       .from('items')
-      .select('quantity_on_hand, quantity_sold')
+      .select('quantity_purchased, quantity_on_hand, quantity_sold, is_archived')
       .eq('id', sale.item_id)
       .single()
 
-    if (!itemError && item) {
-      // Restore inventory before deleting
-      await supabase
+    // If item exists and is not archived, update its quantities
+    if (!itemError && item && !item.is_archived) {
+      console.log('Item found, updating quantities')
+
+      // Calculate new quantities with constraint validation
+      const newOnHand = item.quantity_on_hand + sale.quantity_sold
+      let newSold = Math.max(0, item.quantity_sold - sale.quantity_sold)
+
+      // Ensure constraint: on_hand + sold = purchased
+      if (newOnHand + newSold !== item.quantity_purchased) {
+        newSold = item.quantity_purchased - newOnHand
+        if (newSold < 0) {
+          newSold = 0
+        }
+      }
+
+      console.log('Quantities:', {
+        purchased: item.quantity_purchased,
+        current: { onHand: item.quantity_on_hand, sold: item.quantity_sold },
+        new: { onHand: newOnHand, sold: newSold },
+        valid: (newOnHand + newSold) === item.quantity_purchased
+      })
+
+      // Update item quantities
+      const { error: updateError } = await supabase
         .from('items')
         .update({
-          quantity_on_hand: item.quantity_on_hand + sale.quantity_sold,
-          quantity_sold: item.quantity_sold - sale.quantity_sold,
-          updated_at: new Date().toISOString()
+          quantity_on_hand: newOnHand,
+          quantity_sold: newSold,
         })
         .eq('id', sale.item_id)
+
+      if (updateError) {
+        console.error('Update error:', updateError)
+        return NextResponse.json({
+          error: 'Failed to update inventory',
+          details: updateError.message
+        }, { status: 500 })
+      }
+
+      console.log('Item quantities updated successfully')
+    } else {
+      // Item doesn't exist or is archived
+      console.log('Item not found or archived, skipping inventory update')
     }
 
+    // Delete the sale (whether item exists or not)
     const { error: deleteError } = await supabase
       .from('sales')
       .delete()
@@ -381,13 +418,24 @@ export async function DELETE(request: Request) {
       .eq('user_id', user.id)
 
     if (deleteError) {
-      console.error('Error deleting sale:', deleteError)
-      return NextResponse.json({ error: 'Failed to delete sale' }, { status: 500 })
+      console.error('Delete error:', deleteError)
+      return NextResponse.json({
+        error: 'Failed to delete sale',
+        details: deleteError.message
+      }, { status: 500 })
     }
 
-    return NextResponse.json({ message: 'Sale deleted successfully' })
+    console.log('Sale deleted successfully')
+    return NextResponse.json({
+      message: 'Sale deleted successfully',
+      note: item ? undefined : 'Item was already deleted, only sale record was removed'
+    })
+
   } catch (error) {
     console.error('Unexpected error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }

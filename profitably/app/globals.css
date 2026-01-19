@@ -83,3 +83,29 @@
   );
   background-size: 1000px 100%;
 }
+
+/* Heartbeat animation */
+@keyframes pulse-heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.15);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  70% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-pulse-heartbeat {
+  animation: pulse-heartbeat 2s ease-in-out infinite;
+}
