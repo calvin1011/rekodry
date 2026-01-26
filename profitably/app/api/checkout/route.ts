@@ -12,13 +12,17 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
+      console.error('Auth error:', authError)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { items, store_slug, shipping_address } = body
+    const { items, store_slug } = body
 
-    console.log('Checkout request:', { items, store_slug })
+    console.log('=== CHECKOUT REQUEST ===')
+    console.log('User:', user.email)
+    console.log('Items:', JSON.stringify(items, null, 2))
+    console.log('Store slug:', store_slug)
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'No items in cart' }, { status: 400 })
@@ -36,17 +40,20 @@ export async function POST(request: Request) {
       .single()
 
     if (storeError || !store) {
-      console.error('Store not found:', storeError)
+      console.error('Store error:', storeError)
       return NextResponse.json({ error: 'Store not found' }, { status: 404 })
     }
 
+    console.log('Store found:', store.store_name, 'Owner:', store.user_id)
+
     const productIds = items.map((item: { product_id: string }) => item.product_id)
+    console.log('Looking for product IDs:', productIds)
 
     const { data: products, error: productsError } = await supabase
       .from('products')
       .select(`
         *,
-        items!inner (
+        items (
           id,
           name,
           quantity_on_hand
@@ -56,14 +63,17 @@ export async function POST(request: Request) {
       .eq('user_id', store.user_id)
       .eq('is_published', true)
 
-    console.log('Products fetched:', products)
+    console.log('Products query error:', productsError)
+    console.log('Products found:', products?.length || 0)
+    console.log('Products data:', JSON.stringify(products, null, 2))
 
     if (productsError) {
       console.error('Error fetching products:', productsError)
-      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to fetch products: ' + productsError.message }, { status: 500 })
     }
 
     if (!products || products.length === 0) {
+      console.error('No products found for IDs:', productIds)
       return NextResponse.json({ error: 'No products found' }, { status: 404 })
     }
 
@@ -82,21 +92,22 @@ export async function POST(request: Request) {
 
       const itemData = Array.isArray(product.items) ? product.items[0] : product.items
 
-      console.log('Checking stock for:', {
+      console.log('Checking stock:', {
+        productId: product.id,
         title: product.title,
         itemData,
-        requestedQuantity: cartItem.quantity
+        requestedQty: cartItem.quantity
       })
 
       if (!itemData) {
-        console.error(`No item data for product: ${product.title}`)
+        console.error('No item data for product:', product.title)
         return NextResponse.json({
           error: `No inventory data for ${product.title}`
         }, { status: 400 })
       }
 
       if (itemData.quantity_on_hand < cartItem.quantity) {
-        console.error(`Insufficient stock:`, {
+        console.error('Insufficient stock:', {
           title: product.title,
           available: itemData.quantity_on_hand,
           requested: cartItem.quantity
@@ -138,6 +149,9 @@ export async function POST(request: Request) {
       })
     }
 
+    console.log('Creating Stripe session...')
+    console.log('Line items:', JSON.stringify(lineItems, null, 2))
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
@@ -159,7 +173,8 @@ export async function POST(request: Request) {
     console.log('Stripe session created:', session.id)
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error) {
-    console.error('Checkout error:', error)
+    console.error('=== CHECKOUT ERROR ===')
+    console.error(error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to create checkout session' },
       { status: 500 }

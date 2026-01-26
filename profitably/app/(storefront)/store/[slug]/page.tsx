@@ -14,8 +14,11 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     .single()
 
   if (storeError || !store) {
+    console.error('Store error:', storeError)
     notFound()
   }
+
+  console.log('Store found:', store.store_name, 'User ID:', store.user_id)
 
   const { data: products, error: productsError } = await supabase
     .from('products')
@@ -39,19 +42,22 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     .order('created_at', { ascending: false })
 
   if (productsError) {
-    console.error('Error fetching products:', productsError)
+    console.error('Products error:', productsError)
   }
 
-  const publishedProducts = (products || []).filter((product) => {
-  // Handle items whether they come back as an array or a single object
-  const itemData = Array.isArray(product.items) ? product.items[0] : product.items;
+  console.log('Products found:', products?.length || 0)
+  console.log('Products data:', products)
 
-  return (
-    product.is_published === true &&
-    itemData &&
-    itemData.quantity_on_hand > 0
-  );
-});
+  const publishedProducts = (products || []).filter((product) => {
+    const itemData = Array.isArray(product.items) ? product.items[0] : product.items
+    return (
+      product.is_published === true &&
+      itemData &&
+      itemData.quantity_on_hand > 0
+    )
+  })
+
+  console.log('Published products after filter:', publishedProducts.length)
 
   return (
     <div className="min-h-screen bg-gradient-dark">
