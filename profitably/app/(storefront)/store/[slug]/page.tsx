@@ -21,7 +21,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     .from('products')
     .select(`
       *,
-      items (
+      items!inner (
         id,
         name,
         quantity_on_hand
@@ -35,15 +35,23 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     `)
     .eq('user_id', store.user_id)
     .eq('is_published', true)
+    .gt('items.quantity_on_hand', 0)
     .order('created_at', { ascending: false })
 
   if (productsError) {
     console.error('Error fetching products:', productsError)
   }
 
-  const publishedProducts = (products || []).filter(
-    (p) => p.items && p.items.quantity_on_hand > 0
-  )
+  const publishedProducts = (products || []).filter((product) => {
+  // Handle items whether they come back as an array or a single object
+  const itemData = Array.isArray(product.items) ? product.items[0] : product.items;
+
+  return (
+    product.is_published === true &&
+    itemData &&
+    itemData.quantity_on_hand > 0
+  );
+});
 
   return (
     <div className="min-h-screen bg-gradient-dark">
