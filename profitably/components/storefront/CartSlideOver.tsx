@@ -25,7 +25,6 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
         />
 
         <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-16 pointer-events-none">
-          {/* Main Drawer - Added pointer-events-auto to re-enable clicks */}
           <div className="w-screen max-w-md pointer-events-auto transform transition-transform animate-slide-up sm:animate-none">
 
             {/* Glass effect container matching your global theme */}
@@ -59,18 +58,19 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                       <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Your cart is empty</h3>
                       <p className="text-slate-500 text-sm">Looks like you haven't added anything yet.</p>
                     </div>
-                    <button
+
+                    <Link
+                      href={`/store/${storeSlug}`}
                       onClick={onClose}
-                      className="mt-4 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 transition-colors"
+                      className="mt-4 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 transition-colors inline-block"
                     >
                       Start Shopping
-                    </button>
+                    </Link>
                   </div>
                 ) : (
                   <ul className="divide-y divide-slate-100 dark:divide-slate-800/50">
                     {items.map((item) => (
                       <li key={item.product_id} className="flex gap-5 p-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                        {/* Image */}
                         <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
                           <img
                             src={item.image_url}
@@ -79,7 +79,6 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                           />
                         </div>
 
-                        {/* Content */}
                         <div className="flex-1 flex flex-col justify-between min-w-0">
                           <div className="flex justify-between items-start gap-2">
                             <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2 leading-relaxed">
@@ -95,7 +94,6 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                               {formatCurrency(item.price)} each
                             </p>
 
-                            {/* Modern Pill Quantity Control */}
                             <div className="flex items-center gap-4">
                               <div className="flex items-center h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 overflow-hidden">
                                 <button
@@ -161,7 +159,9 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                     >
                       Checkout
                     </Link>
-                    <button
+
+                    <Link
+                      href={`/store/${storeSlug}`}
                       onClick={onClose}
                       className="block w-full py-3 rounded-xl font-medium text-center
                                text-slate-600 dark:text-slate-400
@@ -169,7 +169,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                                transition-colors"
                     >
                       Continue Shopping
-                    </button>
+                    </Link>
                   </div>
                 </div>
               )}
