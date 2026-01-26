@@ -2,13 +2,15 @@
 
 import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
+import Link from 'next/link'
 
 interface CartSlideOverProps {
   isOpen: boolean
   onClose: () => void
+  storeSlug: string
 }
 
-export default function CartSlideOver({ isOpen, onClose }: CartSlideOverProps) {
+export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideOverProps) {
   const { items, removeItem, updateQuantity, subtotal } = useCart()
 
   if (!isOpen) return null
@@ -130,8 +132,10 @@ export default function CartSlideOver({ isOpen, onClose }: CartSlideOverProps) {
                     </div>
                   </div>
 
-                  <button
-                    className="w-full px-6 py-3 rounded-xl font-semibold
+                  <Link
+                    href={`/store/${storeSlug}/checkout`}
+                    onClick={onClose}
+                    className="block w-full px-6 py-3 rounded-xl font-semibold text-center
                              bg-gradient-profit text-white
                              shadow-lg shadow-profit-500/50
                              hover:shadow-glow-profit-lg hover:scale-[1.02]
@@ -139,7 +143,7 @@ export default function CartSlideOver({ isOpen, onClose }: CartSlideOverProps) {
                              transition-smooth"
                   >
                     Checkout
-                  </button>
+                  </Link>
 
                   <button
                     onClick={onClose}

@@ -2,11 +2,14 @@
 
 import { useCart } from '@/lib/cart-context'
 import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import CartSlideOver from './CartSlideOver'
 
 export default function CartIcon() {
   const { items } = useCart()
   const [isOpen, setIsOpen] = useState(false)
+  const params = useParams()
+  const storeSlug = params.slug as string
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -27,7 +30,7 @@ export default function CartIcon() {
         )}
       </button>
 
-      <CartSlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <CartSlideOver isOpen={isOpen} onClose={() => setIsOpen(false)} storeSlug={storeSlug} />
     </>
   )
 }
