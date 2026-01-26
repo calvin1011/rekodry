@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import React from "react";
@@ -9,12 +9,15 @@ export const metadata: Metadata = {
   title: 'Rekodry - Track Your Reselling Profits',
   description: 'Multi-platform inventory and profit tracking for resellers',
   manifest: '/manifest.json',
-  themeColor: '#10b981',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Rekodry',
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#10b981',
 }
 
 export default function RootLayout({
