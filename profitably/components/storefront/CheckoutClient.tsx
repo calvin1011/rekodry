@@ -22,7 +22,8 @@ interface CheckoutClientProps {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps) {
-  const { items, subtotal } = useCart()
+  // Added updateQuantity and removeItem to the destructuring
+  const { items, subtotal, updateQuantity, removeItem } = useCart()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -77,10 +78,10 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
       }
 
       if (data.url) {
-      window.location.href = data.url;
-    } else {
-      throw new Error("No checkout URL returned");
-    }
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to process checkout')
       setLoading(false)
@@ -92,6 +93,7 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
       <div className="min-h-screen bg-gradient-dark flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-100 mb-4">Your cart is empty</h2>
+          <p className="text-slate-400 mb-8">Add some items to proceed with checkout.</p>
           <Link
             href={`/store/${storeSlug}`}
             className="inline-block px-6 py-3 rounded-xl font-semibold
@@ -115,6 +117,7 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Shipping Form Column */}
           <div className="glass-dark rounded-2xl p-6">
             <h2 className="text-xl font-bold text-slate-100 mb-6">Shipping Information</h2>
 
@@ -289,32 +292,81 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
             </form>
           </div>
 
-          <div className="glass-dark rounded-2xl p-6 h-fit">
+          {/* Order Summary Column */}
+          <div className="glass-dark rounded-2xl p-6 h-fit sticky top-8">
             <h2 className="text-xl font-bold text-slate-100 mb-6">Order Summary</h2>
 
+            {/* Interactive Items List */}
             <div className="space-y-4 mb-6">
               {items.map((item) => (
-                <div key={item.product_id} className="flex gap-4">
-                  <img
-                    src={item.image_url}
-                    alt={item.title}
-                    className="w-16 h-16 object-cover rounded-lg bg-slate-800"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-slate-100 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Qty: {item.quantity}
-                    </p>
+                <div
+                  key={item.product_id}
+                  className="flex gap-4 p-3 rounded-xl bg-slate-800/30 border border-slate-700/50 hover:bg-slate-800/50 transition-colors"
+                >
+                  {/* Product Image */}
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0 border border-slate-700">
+                    <img
+                      src={item.image_url}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <p className="text-sm font-semibold text-slate-100">
-                    {formatCurrency(item.price * item.quantity)}
-                  </p>
+
+                  {/* Product Details & Controls */}
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="text-sm font-medium text-slate-200 line-clamp-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm font-semibold text-slate-100 whitespace-nowrap">
+                        {formatCurrency(item.price * item.quantity)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs text-slate-400">
+                        {formatCurrency(item.price)} each
+                      </p>
+
+                      <div className="flex items-center gap-3">
+                        {/* Quantity Pill */}
+                        <div className="flex items-center h-6 rounded-md bg-slate-900 border border-slate-700 overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                            className="w-6 h-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors disabled:opacity-30"
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center text-xs text-slate-200 font-medium">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                            disabled={item.quantity >= item.max_quantity}
+                            className="w-6 h-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-colors disabled:opacity-30"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        {/* Remove Button */}
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item.product_id)}
+                          className="text-xs text-red-400 hover:text-red-300 transition-colors font-medium px-1"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
 
+            {/* Totals Section */}
             <div className="border-t border-slate-700 pt-4 space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">Subtotal</span>
@@ -328,8 +380,15 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
               </div>
               <div className="flex justify-between pt-3 border-t border-slate-700">
                 <span className="text-base font-semibold text-slate-100">Total</span>
-                <span className="text-lg font-bold gradient-text">{formatCurrency(total)}</span>
+                <span className="text-xl font-bold gradient-text">{formatCurrency(total)}</span>
               </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Secure checkout powered by Stripe</span>
             </div>
           </div>
         </div>

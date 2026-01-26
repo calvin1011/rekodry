@@ -16,190 +16,161 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-hidden animate-fade-in">
+    <div className="fixed inset-0 z-[9999] overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
+        {/* Backdrop - darker and blurrier for better focus */}
         <div
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in"
           onClick={onClose}
         />
 
-        <div className="fixed inset-y-0 right-0 flex max-w-full pl-10 sm:pl-16">
-          <div className="w-screen max-w-lg transform transition-transform">
-            <div className="flex h-full flex-col bg-white dark:bg-slate-900 shadow-2xl">
+        <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-16 pointer-events-none">
+          {/* Main Drawer - Added pointer-events-auto to re-enable clicks */}
+          <div className="w-screen max-w-md pointer-events-auto transform transition-transform animate-slide-up sm:animate-none">
+
+            {/* Glass effect container matching your global theme */}
+            <div className="flex h-full flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl border-l border-slate-200 dark:border-slate-800">
+
               {/* Header */}
-              <div className="flex items-center justify-between px-8 py-6 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                    <svg className="w-6 h-6 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Your Cart</h2>
-                </div>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800/50">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                  Your Cart <span className="text-sm font-normal text-slate-500 ml-2">({items.length})</span>
+                </h2>
                 <button
                   onClick={onClose}
-                  className="p-3 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200"
-                  aria-label="Close cart"
+                  className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-500 transition-colors"
                 >
-                  <svg className="w-5 h-5 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Cart Items - Scrollable */}
-              <div className="flex-1 overflow-y-auto px-8 py-6">
+              {/* Cart Items - Clean List View (No more clashing cards) */}
+              <div className="flex-1 overflow-y-auto">
                 {items.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center py-16">
-                    <div className="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6">
-                      <svg className="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  <div className="flex flex-col items-center justify-center h-full text-center p-8 space-y-4">
+                    <div className="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
-                    <p className="text-slate-600 dark:text-slate-400 text-lg mb-4">Your cart is empty</p>
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Your cart is empty</h3>
+                      <p className="text-slate-500 text-sm">Looks like you haven't added anything yet.</p>
+                    </div>
                     <button
                       onClick={onClose}
-                      className="px-6 py-3 rounded-lg font-medium text-white bg-gradient-profit hover:shadow-lg hover:shadow-profit-500/30 transition-all"
+                      className="mt-4 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 transition-colors"
                     >
                       Start Shopping
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <ul className="divide-y divide-slate-100 dark:divide-slate-800/50">
                     {items.map((item) => (
-                      <div
-                        key={item.product_id}
-                        className="flex gap-4 p-4 rounded-xl bg-white dark:bg-slate-800/30 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all duration-200"
-                      >
-                        {/* Product Image */}
-                        <div className="flex-shrink-0">
-                          <div className="relative">
-                            <img
-                              src={item.image_url}
-                              alt={item.title}
-                              className="w-24 h-24 object-cover rounded-xl bg-slate-100 dark:bg-slate-800"
-                            />
-                            <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-slate-900 dark:bg-white flex items-center justify-center">
-                              <span className="text-xs font-semibold text-white dark:text-slate-900">
-                                {item.quantity}
-                              </span>
-                            </div>
-                          </div>
+                      <li key={item.product_id} className="flex gap-5 p-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                        {/* Image */}
+                        <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                          <img
+                            src={item.image_url}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
 
-                        {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 pr-4">
+                        {/* Content */}
+                        <div className="flex-1 flex flex-col justify-between min-w-0">
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2 leading-relaxed">
                               {item.title}
                             </h3>
-                            <button
-                              onClick={() => removeItem(item.product_id)}
-                              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors flex-shrink-0"
-                              aria-label="Remove item"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap ml-2">
+                              {formatCurrency(item.price * item.quantity)}
+                            </p>
                           </div>
 
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            {formatCurrency(item.price)}
-                          </p>
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                              {formatCurrency(item.price)} each
+                            </p>
 
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5">
+                            {/* Modern Pill Quantity Control */}
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 overflow-hidden">
+                                <button
+                                  onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30"
+                                >
+                                  -
+                                </button>
+                                <span className="w-8 text-center text-xs font-medium text-slate-900 dark:text-slate-100 border-x border-slate-100 dark:border-slate-800 py-1">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                                  disabled={item.quantity >= item.max_quantity}
+                                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30"
+                                >
+                                  +
+                                </button>
+                              </div>
+
                               <button
-                                onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                                className="w-6 h-6 rounded-full hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-colors"
-                                aria-label="Decrease quantity"
+                                onClick={() => removeItem(item.product_id)}
+                                className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors"
                               >
-                                <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                                </svg>
+                                Remove
                               </button>
-                              <span className="text-sm font-medium text-slate-900 dark:text-slate-100 w-6 text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                                disabled={item.quantity >= item.max_quantity}
-                                className="w-6 h-6 rounded-full hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                                aria-label="Increase quantity"
-                              >
-                                <svg className="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                              </button>
-                            </div>
-                            <div className="ml-auto">
-                              <p className="text-base font-bold text-slate-900 dark:text-slate-100">
-                                {formatCurrency(item.price * item.quantity)}
-                              </p>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
               </div>
 
-              {/* Footer with Totals & Checkout */}
+              {/* Footer */}
               {items.length > 0 && (
-                <div className="flex-shrink-0 border-t border-slate-200 dark:border-slate-800 px-8 py-6 bg-white dark:bg-slate-900">
-                  {/* Summary */}
+                <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 p-6 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
                   <div className="space-y-3 mb-6">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-slate-600 dark:text-slate-400">Subtotal</span>
-                      <span className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                      <span>Subtotal</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-200">{formatCurrency(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
+                      <span className="text-base font-bold text-slate-900 dark:text-slate-50">Total</span>
+                      <span className="text-xl font-bold text-slate-900 dark:text-slate-50">
                         {formatCurrency(subtotal)}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-2 border-t border-slate-200 dark:border-slate-700 pt-3">
-                      <span className="text-slate-600 dark:text-slate-400">Shipping</span>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">Calculated at checkout</span>
-                    </div>
-                    <div className="flex justify-between items-center py-2 border-t border-slate-200 dark:border-slate-700 pt-3">
-                      <span className="text-lg font-bold text-slate-900 dark:text-slate-100">Total</span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                        {formatCurrency(subtotal)}
-                      </span>
-                    </div>
+                    <p className="text-xs text-center text-slate-500 dark:text-slate-500 pt-2">
+                      Shipping and taxes calculated at checkout.
+                    </p>
                   </div>
 
-                  {/* Buttons */}
                   <div className="space-y-3">
                     <Link
                       href={`/store/${storeSlug}/checkout`}
                       onClick={onClose}
-                      className="block w-full px-6 py-4 rounded-xl font-semibold text-center
-                               bg-gradient-profit text-white
-                               shadow-lg shadow-profit-500/30
-                               hover:shadow-xl hover:shadow-profit-500/40 hover:scale-[1.02]
-                               active:scale-[0.98]
+                      className="block w-full py-4 rounded-xl font-bold text-center text-white
+                               bg-gradient-profit shadow-lg shadow-profit-500/25
+                               hover:shadow-profit-500/40 hover:scale-[1.01] active:scale-[0.99]
                                transition-all duration-200"
                     >
-                      Proceed to Checkout
+                      Checkout
                     </Link>
-
                     <button
                       onClick={onClose}
-                      className="w-full px-6 py-3.5 rounded-xl font-medium
-                               bg-transparent text-slate-600 dark:text-slate-400 border-2 border-slate-300 dark:border-slate-700
-                               hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-600
-                               transition-all duration-200"
+                      className="block w-full py-3 rounded-xl font-medium text-center
+                               text-slate-600 dark:text-slate-400
+                               hover:bg-slate-100 dark:hover:bg-slate-800
+                               transition-colors"
                     >
                       Continue Shopping
                     </button>
                   </div>
-
-                  {/* Additional Info */}
-                  <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
-                    Free shipping on orders over $100 • Secure checkout
-                  </p>
                 </div>
               )}
             </div>
