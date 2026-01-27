@@ -295,7 +295,7 @@ export async function POST(request: Request) {
       if (resend) {
         try {
           await resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: 'Rekodry <orders@rekodry.com',
             to: customerEmail,
             subject: `Order Confirmation - ${orderNumber}`,
             html: getOrderConfirmationEmailHtml({
