@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { headers } from 'next/headers'
-import Stripe from 'stripe'
+import { resend } from '@/lib/resend'
+import { getOrderConfirmationEmailHtml } from '@/lib/email-templates'
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -27,8 +28,7 @@ export async function POST(request: Request) {
   }
 
   if (event.type === 'checkout.session.completed') {
-
-      const session = event.data.object as any;
+    const session = event.data.object as any
 
     try {
       const supabase = await createClient()
@@ -228,6 +228,53 @@ export async function POST(request: Request) {
 
       if (customerUpdateError) {
         console.error('Error updating customer stats:', customerUpdateError)
+      }
+
+      const { data: storeSettings } = await supabase
+        .from('store_settings')
+        .select('store_name')
+        .eq('user_id', userId)
+        .single()
+
+      if (resend) {
+        try {
+          await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: customerEmail,
+            subject: `Order Confirmation - ${orderNumber}`,
+            html: getOrderConfirmationEmailHtml({
+              orderNumber,
+              customerName: session.shipping_details?.name || 'Customer',
+              customerEmail,
+              orderDate: new Date().toLocaleDateString(),
+              items: orderItemsData.map(({ product, cartItem, itemSubtotal }) => ({
+                title: product.title,
+                quantity: cartItem.quantity,
+                price: product.price,
+                subtotal: itemSubtotal,
+              })),
+              subtotal,
+              shipping: shippingCost,
+              tax: 0,
+              total,
+              shippingAddress: {
+                line1: shippingAddress?.line1 || '',
+                line2: shippingAddress?.line2 || undefined,
+                city: shippingAddress?.city || '',
+                state: shippingAddress?.state || '',
+                postalCode: shippingAddress?.postal_code || '',
+                country: shippingAddress?.country || 'US',
+              },
+              storeName: storeSettings?.store_name || 'Store',
+            }),
+          })
+
+          console.log('Order confirmation email sent successfully')
+        } catch (emailError) {
+          console.error('Error sending order confirmation email:', emailError)
+        }
+      } else {
+        console.log('Resend not configured - skipping order confirmation email')
       }
 
       console.log('Order created successfully:', order.id)
