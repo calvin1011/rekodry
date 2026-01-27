@@ -100,7 +100,7 @@ export async function PATCH(request: Request) {
       )
     }
 
-    if (shouldSendEmail && tracking_carrier) {
+    if (shouldSendEmail && tracking_carrier && resend) {
       const { data: storeSettings } = await supabase
         .from('store_settings')
         .select('store_name')
@@ -126,6 +126,8 @@ export async function PATCH(request: Request) {
       } catch (emailError) {
         console.error('Error sending shipping notification email:', emailError)
       }
+    } else if (!resend) {
+      console.log('Resend not configured - skipping email notification')
     }
 
     return NextResponse.json({ order: updatedOrder })

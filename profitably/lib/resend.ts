@@ -1,7 +1,9 @@
 import { Resend } from 'resend'
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('Missing RESEND_API_KEY environment variable')
+const apiKey = process.env.RESEND_API_KEY
+
+if (!apiKey) {
+  console.warn('Warning: RESEND_API_KEY is not set. Email notifications will be disabled.')
 }
 
-export const resend = new Resend(process.env.RESEND_API_KEY)
+export const resend = apiKey ? new Resend(apiKey) : null

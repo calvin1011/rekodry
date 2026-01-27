@@ -236,41 +236,45 @@ export async function POST(request: Request) {
         .eq('user_id', userId)
         .single()
 
-      try {
-        await resend.emails.send({
-          from: 'orders@yourdomain.com',
-          to: customerEmail,
-          subject: `Order Confirmation - ${orderNumber}`,
-          html: getOrderConfirmationEmailHtml({
-            orderNumber,
-            customerName: session.shipping_details?.name || 'Customer',
-            customerEmail,
-            orderDate: new Date().toLocaleDateString(),
-            items: orderItemsData.map(({ product, cartItem, itemSubtotal }) => ({
-              title: product.title,
-              quantity: cartItem.quantity,
-              price: product.price,
-              subtotal: itemSubtotal,
-            })),
-            subtotal,
-            shipping: shippingCost,
-            tax: 0,
-            total,
-            shippingAddress: {
-              line1: shippingAddress?.line1 || '',
-              line2: shippingAddress?.line2 || undefined,
-              city: shippingAddress?.city || '',
-              state: shippingAddress?.state || '',
-              postalCode: shippingAddress?.postal_code || '',
-              country: shippingAddress?.country || 'US',
-            },
-            storeName: storeSettings?.store_name || 'Store',
-          }),
-        })
+      if (resend) {
+        try {
+          await resend.emails.send({
+            from: 'onboarding@resend.dev',
+            to: customerEmail,
+            subject: `Order Confirmation - ${orderNumber}`,
+            html: getOrderConfirmationEmailHtml({
+              orderNumber,
+              customerName: session.shipping_details?.name || 'Customer',
+              customerEmail,
+              orderDate: new Date().toLocaleDateString(),
+              items: orderItemsData.map(({ product, cartItem, itemSubtotal }) => ({
+                title: product.title,
+                quantity: cartItem.quantity,
+                price: product.price,
+                subtotal: itemSubtotal,
+              })),
+              subtotal,
+              shipping: shippingCost,
+              tax: 0,
+              total,
+              shippingAddress: {
+                line1: shippingAddress?.line1 || '',
+                line2: shippingAddress?.line2 || undefined,
+                city: shippingAddress?.city || '',
+                state: shippingAddress?.state || '',
+                postalCode: shippingAddress?.postal_code || '',
+                country: shippingAddress?.country || 'US',
+              },
+              storeName: storeSettings?.store_name || 'Store',
+            }),
+          })
 
-        console.log('Order confirmation email sent successfully')
-      } catch (emailError) {
-        console.error('Error sending order confirmation email:', emailError)
+          console.log('Order confirmation email sent successfully')
+        } catch (emailError) {
+          console.error('Error sending order confirmation email:', emailError)
+        }
+      } else {
+        console.log('Resend not configured - skipping order confirmation email')
       }
 
       console.log('Order created successfully:', order.id)
