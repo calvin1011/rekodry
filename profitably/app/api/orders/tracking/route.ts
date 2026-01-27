@@ -109,7 +109,7 @@ export async function PATCH(request: Request) {
 
       try {
         await resend.emails.send({
-          from: 'onboarding@resend.dev',
+          from: 'Rekodry <tracking@rekodry.com',
           to: typedOrder.customers.email,
           subject: `Your Order Has Shipped - ${typedOrder.order_number}`,
           html: getShippingNotificationEmailHtml({
