@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { headers } from 'next/headers'
-import { resend } from '@/lib/resend'
+import { resend, resendFromEmail } from '@/lib/resend'
 import { getOrderConfirmationEmailHtml } from '@/lib/email-templates'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -288,15 +290,22 @@ export async function POST(request: Request) {
 
       const { data: storeSettings } = await supabase
         .from('store_settings')
-        .select('store_name')
+        .select('store_name,business_email')
         .eq('user_id', userId)
         .single()
 
-      if (resend) {
+      console.log('Email send check:', {
+        hasResend: !!resend,
+        from: resendFromEmail,
+        to: customerEmail || null,
+      })
+
+      if (resend && customerEmail) {
         try {
           await resend.emails.send({
-            from: 'orders@rekodry.com',
+            from: resendFromEmail,
             to: customerEmail,
+            replyTo: storeSettings?.business_email || undefined,
             subject: `Order Confirmation - ${orderNumber}`,
             html: getOrderConfirmationEmailHtml({
               orderNumber,
@@ -329,6 +338,8 @@ export async function POST(request: Request) {
         } catch (emailError) {
           console.error('Error sending order confirmation email:', emailError)
         }
+      } else if (!customerEmail) {
+        console.error('Skipping email: missing customer email on session')
       }
 
       console.log(' WEBHOOK COMPLETED SUCCESSFULLY ')

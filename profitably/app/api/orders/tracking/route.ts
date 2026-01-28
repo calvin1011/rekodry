@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { resend } from '@/lib/resend'
+import { resend, resendTrackingFromEmail } from '@/lib/resend'
 import { getShippingNotificationEmailHtml } from '@/lib/email-templates'
 
 interface Customer {
@@ -103,14 +103,15 @@ export async function PATCH(request: Request) {
     if (shouldSendEmail && tracking_carrier && resend) {
       const { data: storeSettings } = await supabase
         .from('store_settings')
-        .select('store_name')
+        .select('store_name,business_email')
         .eq('user_id', user.id)
         .single()
 
       try {
         await resend.emails.send({
-          from: 'tracking@rekodry.com',
+          from: resendTrackingFromEmail,
           to: typedOrder.customers.email,
+          replyTo: storeSettings?.business_email || undefined,
           subject: `Your Order Has Shipped - ${typedOrder.order_number}`,
           html: getShippingNotificationEmailHtml({
             orderNumber: typedOrder.order_number,
