@@ -71,7 +71,7 @@ export default async function StoreLayout({
 
       <footer className="bg-slate-950 border-t border-slate-800/50 mt-auto md:ml-64">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-lg font-bold text-slate-100 mb-4">
                 {store.store_name}
@@ -147,18 +147,15 @@ export default async function StoreLayout({
                     Ships from {store.ships_from_city}, {store.ships_from_state}
                   </li>
                 )}
+                <li className="pt-2">
+                  <Link
+                    href={`/store/${slug}/contact`}
+                    className="inline-block px-4 py-2 bg-profit-600 hover:bg-profit-500 text-white text-sm rounded-lg transition-colors"
+                  >
+                    Contact Us
+                  </Link>
+                </li>
               </ul>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-semibold text-slate-100 mb-4 uppercase tracking-wider">Get in Touch</h4>
-              <p className="text-slate-400 text-sm mb-4">Have a question? Send us a message.</p>
-              <Link
-                href={`/store/${slug}/contact`}
-                className="inline-block px-4 py-2 bg-profit-600 hover:bg-profit-500 text-white text-sm rounded-lg transition-colors"
-              >
-                Contact Us
-              </Link>
             </div>
           </div>
 

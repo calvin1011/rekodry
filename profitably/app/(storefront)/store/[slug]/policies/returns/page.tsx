@@ -22,53 +22,47 @@ export default async function ReturnPolicyPage({
   }
 
   const defaultReturnPolicy = `
-## Return Policy
-
-### 30-Day Money Back Guarantee
+30-Day Money Back Guarantee
 
 We want you to be completely satisfied with your purchase. If you're not happy with your order, you can return it within 30 days of delivery for a full refund.
 
-### Return Conditions
+Return Conditions
 
 - Items must be in their original condition and packaging
 - Items must be unused and undamaged
 - All original tags and labels must be attached
 - Proof of purchase (order number) is required
 
-### How to Return
+How to Return
 
 1. Contact us at ${store.store_name} with your order number
 2. We'll provide you with return shipping instructions
 3. Ship the item back using a trackable shipping method
 4. Once we receive and inspect the return, we'll process your refund
 
-### Refund Processing
+Refund Processing
 
 - Refunds will be issued to the original payment method
 - Please allow 5-10 business days for the refund to appear on your statement
 - Original shipping costs are non-refundable
 - Return shipping costs are the responsibility of the customer unless the item was defective or we made an error
 
-### Non-Returnable Items
+Non-Returnable Items
 
 - Digital products
 - Items marked as final sale
 - Gift cards
 
-### Exchanges
+Exchanges
 
 We don't offer direct exchanges at this time. If you need a different item, please return the original item for a refund and place a new order.
 
-### Damaged or Defective Items
+Damaged or Defective Items
 
 If you receive a damaged or defective item:
 - Contact us immediately with photos of the damage
 - We'll arrange for a replacement or full refund at no cost to you
 - Return shipping for defective items will be covered by us
-
-### Questions?
-
-If you have any questions about our return policy, please [contact us](/store/${slug}/contact).
   `.trim()
 
   const policyContent = store.return_policy || defaultReturnPolicy

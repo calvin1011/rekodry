@@ -22,27 +22,25 @@ export default async function ShippingPolicyPage({
   }
 
   const defaultShippingPolicy = `
-## Shipping Policy
-
-### Processing Time
+Processing Time
 
 Orders are typically processed and shipped within ${store.processing_days || 2} business days (Monday-Friday, excluding holidays).
 
-### Shipping Methods & Costs
+Shipping Methods & Costs
 
 We currently offer standard shipping at a flat rate of $${store.flat_shipping_rate || 5.00} per order.
 
-### Shipping Locations
+Shipping Locations
 
 We ship from ${store.ships_from_city || 'our warehouse'}, ${store.ships_from_state || 'USA'} to addresses within the United States.
 
-### Delivery Time
+Delivery Time
 
 - Standard Shipping: 3-7 business days after order processing
 - Delivery times may vary during peak seasons or holidays
 - Remote areas may experience longer delivery times
 
-### Order Tracking
+Order Tracking
 
 Once your order ships, you'll receive:
 - A shipping confirmation email
@@ -51,37 +49,33 @@ Once your order ships, you'll receive:
 
 You can also track your order anytime by visiting your account page.
 
-### Shipping Restrictions
+Shipping Restrictions
 
 - We currently only ship within the United States
 - P.O. Boxes are accepted
 - We cannot ship to freight forwarding addresses
 
-### Lost or Damaged Packages
+Lost or Damaged Packages
 
 If your package is lost or damaged during shipping:
 - Contact us immediately with your order number
 - We'll work with the carrier to resolve the issue
 - Replacements or refunds will be provided as appropriate
 
-### Address Changes
+Address Changes
 
 Please ensure your shipping address is correct before completing your order. If you need to update your address:
 - Contact us immediately after placing your order
 - Once the package has shipped, we cannot modify the address
 - You may need to contact the carrier directly
 
-### International Shipping
+International Shipping
 
 We do not currently offer international shipping. We apologize for any inconvenience.
 
-### Holiday Shipping
+Holiday Shipping
 
 During major holidays, please allow extra time for processing and delivery. We recommend ordering well in advance of any gift-giving occasions.
-
-### Questions?
-
-For questions about shipping, please [contact us](/store/${slug}/contact).
   `.trim()
 
   const policyContent = store.shipping_policy || defaultShippingPolicy
