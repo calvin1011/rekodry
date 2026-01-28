@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import CartIcon from '@/components/storefront/CartIcon'
+import StorefrontSidebar from '@/components/storefront/StorefrontSidebar'
 import React from "react";
 
 export default async function StoreLayout({
@@ -61,9 +62,12 @@ export default async function StoreLayout({
         </div>
       </header>
 
-      <main className="flex-1">
-        {children}
-      </main>
+      <div className="flex-1">
+        <StorefrontSidebar />
+        <main className="flex-1 md:pl-64">
+          {children}
+        </main>
+      </div>
 
       <footer className="bg-slate-900 border-t border-slate-800 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

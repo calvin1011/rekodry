@@ -6,18 +6,21 @@ import Link from 'next/link'
 
 interface AccountLoginFormProps {
   storeSlug: string
+  compact?: boolean
 }
 
-export default function AccountLoginForm({ storeSlug }: AccountLoginFormProps) {
+export default function AccountLoginForm({ storeSlug, compact = false }: AccountLoginFormProps) {
   const [state, action, isPending] = useActionState(loginWithEmail.bind(null, storeSlug), null)
 
   return (
-    <div className="min-h-screen bg-gradient-dark flex items-center justify-center p-4">
-      <div className="max-w-md w-full glass-dark rounded-2xl border border-slate-800 p-8 shadow-xl">
+    <div className={compact ? '' : 'min-h-screen bg-gradient-dark flex items-center justify-center p-4'}>
+      <div className={`${compact ? '' : 'max-w-md'} w-full glass-dark rounded-2xl border border-slate-800 p-8 shadow-xl`}>
         <div className="text-center mb-8">
-          <Link href={`/store/${storeSlug}`} className="text-profit-400 hover:text-profit-300 text-sm mb-4 inline-block">
-            ← Back to Store
-          </Link>
+          {!compact && (
+            <Link href={`/store/${storeSlug}`} className="text-profit-400 hover:text-profit-300 text-sm mb-4 inline-block">
+              ← Back to Store
+            </Link>
+          )}
           <h1 className="text-2xl font-bold text-slate-100 mb-2">Sign In</h1>
           <p className="text-slate-400">Access your order history</p>
         </div>
@@ -59,7 +62,7 @@ export default function AccountLoginForm({ storeSlug }: AccountLoginFormProps) {
           <div className="text-center pt-4 border-t border-slate-800">
             <p className="text-sm text-slate-400 mb-2">Just tracking one order?</p>
             <Link
-              href={`/store/${storeSlug}/track-order`}
+              href={`/store/${storeSlug}/account?tab=tracking`}
               className="text-profit-400 hover:text-profit-300 text-sm font-medium transition-colors"
             >
               Track order as guest

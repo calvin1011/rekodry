@@ -13,7 +13,7 @@ export default async function OrderDetailPage({
   const session = await getSession()
 
   if (!session) {
-    redirect(`/store/${slug}/track-order`)
+    redirect(`/store/${slug}/account?tab=tracking`)
   }
 
   const supabase = await createClient()
@@ -54,7 +54,7 @@ export default async function OrderDetailPage({
   if (session.type === 'guest') {
     // Guest can only view the specific order from their session
     if (session.orderId !== order.id) {
-      redirect(`/store/${slug}/track-order?error=unauthorized`)
+      redirect(`/store/${slug}/account?tab=tracking&error=unauthorized`)
     }
   } else if (session.type === 'customer') {
     // Customer can only view their own orders
@@ -64,8 +64,8 @@ export default async function OrderDetailPage({
   }
 
   const backLink = session.type === 'customer'
-    ? `/store/${slug}/account`
-    : `/store/${slug}/track-order`
+    ? `/store/${slug}/account?tab=orders`
+    : `/store/${slug}/account?tab=tracking`
 
   const backText = session.type === 'customer'
     ? 'Back to Orders'
