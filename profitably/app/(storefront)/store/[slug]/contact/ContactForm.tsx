@@ -4,7 +4,10 @@ import { useActionState, useState } from 'react'
 import { submitContactForm } from './actions'
 
 export default function ContactForm({ storeSlug }: { storeSlug: string }) {
-  const [state, formAction] = useActionState(submitContactForm.bind(null, storeSlug), {})
+  const [state, formAction] = useActionState(
+    async (prevState: any, formData: FormData) => submitContactForm(storeSlug, prevState, formData),
+    {}
+  )
   const [isSubmitted, setIsSubmitted] = useState(false)
 
   if (isSubmitted || state?.success) {
