@@ -47,11 +47,11 @@ export default async function ProductDetailPage({
     notFound()
   }
 
-  const { data: relatedProducts } = await supabase
+  const { data: relatedProductsRaw } = await supabase
     .from('products')
     .select(`
       *,
-      items (
+      items!inner (
         id,
         name,
         quantity_on_hand
@@ -66,7 +66,14 @@ export default async function ProductDetailPage({
     .eq('user_id', store.user_id)
     .eq('is_published', true)
     .neq('id', product.id)
+    .gt('items.quantity_on_hand', 0)
     .limit(4)
+
+  // Filter out products without slugs or with zero stock
+  const relatedProducts = (relatedProductsRaw || []).filter((p) => {
+    const itemData = Array.isArray(p.items) ? p.items[0] : p.items
+    return p.slug && itemData && itemData.quantity_on_hand > 0
+  })
 
   return (
     <ProductDetailClient

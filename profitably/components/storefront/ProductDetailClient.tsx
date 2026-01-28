@@ -27,7 +27,7 @@ interface Product {
   price: number
   compare_at_price: number | null
   weight_oz: number
-  items: Item
+  items: Item | Item[]
   product_images: ProductImage[]
 }
 
@@ -60,8 +60,9 @@ export default function ProductDetailClient({
   const [showSuccess, setShowSuccess] = useState(false)
 
   const sortedImages = [...product.product_images].sort((a, b) => a.position - b.position)
-  const isOutOfStock = product.items.quantity_on_hand === 0
-  const maxQuantity = product.items.quantity_on_hand
+  const itemData = Array.isArray(product.items) ? product.items[0] : product.items
+  const isOutOfStock = !itemData || itemData.quantity_on_hand === 0
+  const maxQuantity = itemData?.quantity_on_hand || 0
 
   const handleAddToCart = () => {
     if (isOutOfStock) return
@@ -163,7 +164,7 @@ export default function ProductDetailClient({
                 <div className="flex justify-between">
                   <span className="text-slate-400">Availability</span>
                   <span className={isOutOfStock ? 'text-red-400 font-medium' : 'text-profit-400 font-medium'}>
-                    {isOutOfStock ? 'Out of Stock' : `${product.items.quantity_on_hand} available`}
+                    {isOutOfStock ? 'Out of Stock' : `${itemData?.quantity_on_hand || 0} available`}
                   </span>
                 </div>
                 <div className="flex justify-between">
