@@ -29,7 +29,7 @@ export default async function CheckoutSuccessPage({
   }
 
   // Fetch order details by Stripe session ID
-  const { data: order } = await supabase
+  const { data: orderData } = await supabase
     .from('orders')
     .select(`
       id,
@@ -46,7 +46,7 @@ export default async function CheckoutSuccessPage({
         quantity,
         subtotal
       ),
-      customer_addresses (
+      customer_addresses!shipping_address_id (
         address_line1,
         address_line2,
         city,
@@ -57,12 +57,18 @@ export default async function CheckoutSuccessPage({
     .eq('stripe_checkout_session_id', session_id)
     .single()
 
+  // Transform the data to match the expected format
+  const order = orderData ? {
+    ...orderData,
+    customer_addresses: orderData.customer_addresses || null
+  } : null
+
   return (
     <SuccessClient
       storeSlug={slug}
       storeName={store.store_name}
       sessionId={session_id}
-      order={order}
+      order={order as any}
     />
   )
 }
