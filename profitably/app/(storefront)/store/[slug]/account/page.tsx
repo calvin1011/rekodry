@@ -29,7 +29,6 @@ export default async function AccountPage({
     total: number
     status: string | null
     payment_status: string | null
-    fulfillment_status: string | null
     created_at: string
     paid_at: string | null
   }[] | null = null
@@ -41,6 +40,8 @@ export default async function AccountPage({
     customerIds?: string[]
     ordersCount?: number | null
     ordersByEmailCount?: number | null
+    ordersError?: string | null
+    ordersByEmailError?: string | null
   } | null = null
 
   if (showOrders && session?.type === 'customer') {
@@ -64,7 +65,7 @@ export default async function AccountPage({
     ].filter(Boolean)
 
     if (customerIds.length > 0) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('orders')
         .select(`
           id,
@@ -72,7 +73,6 @@ export default async function AccountPage({
           total,
           status,
           payment_status,
-          fulfillment_status,
           created_at,
           paid_at
         `)
@@ -89,12 +89,14 @@ export default async function AccountPage({
           customerIds,
           ordersCount: data?.length || 0,
           ordersByEmailCount: null,
+          ordersError: error?.message || null,
+          ordersByEmailError: null,
         }
       }
     }
 
     if (!orders || orders.length === 0) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('orders')
         .select(`
           id,
@@ -102,7 +104,6 @@ export default async function AccountPage({
           total,
           status,
           payment_status,
-          fulfillment_status,
           created_at,
           paid_at,
           customers!inner(email)
@@ -120,6 +121,8 @@ export default async function AccountPage({
           customerIds,
           ordersCount: null,
           ordersByEmailCount: data?.length || 0,
+          ordersError: null,
+          ordersByEmailError: error?.message || null,
         }
       }
     }
@@ -128,7 +131,7 @@ export default async function AccountPage({
   const totalOrders = orders?.length || 0
   const latestOrder = orders?.[0]
   const openOrders = orders?.filter((order) =>
-    !['delivered', 'fulfilled', 'cancelled'].includes(order.fulfillment_status || 'pending')
+    !['delivered', 'cancelled', 'refunded'].includes(order.status || 'pending')
   ).length || 0
 
   return (
@@ -202,7 +205,7 @@ export default async function AccountPage({
             </p>
             <p className="text-sm text-slate-400 mt-1">
               {latestOrder
-                ? `Status: ${latestOrder.fulfillment_status || 'pending'}`
+                ? `Status: ${latestOrder.status || 'pending'}`
                 : session?.type === 'customer'
                 ? 'No orders yet'
                 : 'Sign in to see details'}
@@ -237,7 +240,7 @@ export default async function AccountPage({
                         <span className="text-lg font-semibold text-slate-100 group-hover:text-profit-400 transition-colors">
                           {order.order_number}
                         </span>
-                        <StatusBadge status={order.fulfillment_status || 'pending'} />
+                        <StatusBadge status={order.status || 'pending'} />
                       </div>
                       <p className="text-sm text-slate-400">
                         Placed on {new Date(order.created_at).toLocaleDateString()}
