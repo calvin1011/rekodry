@@ -38,6 +38,12 @@ export default async function AccountPage({
     const sessionEmail = session.email?.trim().toLowerCase()
     const supabase = createAdminClient()
 
+    const { data: store } = await supabase
+      .from('store_settings')
+      .select('user_id')
+      .eq('store_slug', slug)
+      .single()
+
     const { data: matchingCustomers } = await supabase
       .from('customers')
       .select('id')
@@ -61,8 +67,29 @@ export default async function AccountPage({
           created_at,
           paid_at
         `)
-        .eq('user_id', session.storeId)
+        .eq('user_id', store?.user_id || session.storeId)
         .in('customer_id', customerIds)
+        .order('created_at', { ascending: false })
+
+      orders = data
+    }
+
+    if (!orders || orders.length === 0) {
+      const { data } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          order_number,
+          total,
+          status,
+          payment_status,
+          fulfillment_status,
+          created_at,
+          paid_at,
+          customers!inner(email)
+        `)
+        .eq('user_id', store?.user_id || session.storeId)
+        .ilike('customers.email', sessionEmail)
         .order('created_at', { ascending: false })
 
       orders = data
