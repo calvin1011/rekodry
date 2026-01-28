@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   const navItems = [
     {
@@ -86,6 +88,93 @@ export default function Sidebar() {
 
   return (
     <>
+      <div className="md:hidden sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
+        <div className="flex items-center justify-between px-4 h-14">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-gradient-profit flex items-center justify-center">
+              <span className="text-white font-bold text-lg">R</span>
+            </div>
+            <span className="text-lg font-bold gradient-text">Rekodry</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-smooth"
+            aria-label="Open navigation menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? '' : 'pointer-events-none'}`}>
+        <div
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity ${
+            isMobileOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={() => setIsMobileOpen(false)}
+        />
+        <aside
+          className={`absolute left-0 top-0 h-full w-72 bg-slate-900 border-r border-slate-800 transform transition-transform ${
+            isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="flex items-center justify-between p-4 border-b border-slate-800">
+            <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setIsMobileOpen(false)}>
+              <div className="w-9 h-9 rounded-xl bg-gradient-profit flex items-center justify-center">
+                <span className="text-white font-bold text-lg">R</span>
+              </div>
+              <span className="text-lg font-bold gradient-text">Rekodry</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen(false)}
+              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-smooth"
+              aria-label="Close navigation menu"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <nav className="px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar h-[calc(100%-120px)]">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsMobileOpen(false)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-smooth
+                  ${isActive(item.href)
+                    ? 'bg-profit-500/20 text-profit-400 border border-profit-500/30'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100'
+                  }`}
+              >
+                {item.icon}
+                <span className="font-medium">{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+
+          <div className="p-4 border-t border-slate-800">
+            <form action="/auth/signout" method="post">
+              <button
+                type="submit"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400
+                         hover:bg-slate-800 hover:text-slate-100 transition-smooth"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className="font-medium">Sign Out</span>
+              </button>
+            </form>
+          </div>
+        </aside>
+      </div>
+
       <aside className="hidden md:flex md:flex-col md:w-64 bg-slate-900 border-r border-slate-800 min-h-screen">
         <div className="p-6">
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -128,25 +217,6 @@ export default function Sidebar() {
           </form>
         </div>
       </aside>
-
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-50">
-        <div className="flex items-center justify-around">
-          {navItems.slice(0, 5).map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center gap-1 py-3 px-4 transition-smooth
-                ${isActive(item.href)
-                  ? 'text-profit-400'
-                  : 'text-slate-400'
-                }`}
-            >
-              {item.icon}
-              <span className="text-xs font-medium">{item.name}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
     </>
   )
 }
