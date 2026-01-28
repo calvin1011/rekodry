@@ -13,14 +13,6 @@ export default async function CheckoutSuccessPage({
   const { session_id } = await searchParams
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect(`/login?redirect=/store/${slug}/checkout/success`)
-  }
-
   const { data: store, error: storeError } = await supabase
     .from('store_settings')
     .select('*')
