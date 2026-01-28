@@ -37,24 +37,37 @@ export default async function AccountPage({
   if (showOrders && session?.type === 'customer') {
     const supabase = await createClient()
 
-    const { data } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        order_number,
-        total,
-        status,
-        payment_status,
-        fulfillment_status,
-        created_at,
-        paid_at,
-        customers!inner(email)
-      `)
-      .eq('user_id', session.storeId)
-      .eq('customers.email', session.email)
-      .order('created_at', { ascending: false })
+    const { data: matchingCustomers } = await supabase
+      .from('customers')
+      .select('id')
+      .ilike('email', session.email)
 
-    orders = data
+    const customerIds = [
+      session.customerId,
+      ...(matchingCustomers?.map((customer) => customer.id) || []),
+    ].filter(Boolean)
+
+    if (customerIds.length > 0) {
+      const { data } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          order_number,
+          total,
+          status,
+          payment_status,
+          fulfillment_status,
+          created_at,
+          paid_at
+        `)
+        .eq('user_id', session.storeId)
+        .in('customer_id', customerIds)
+        .order('created_at', { ascending: false })
+
+      orders = data
+    } else {
+      orders = []
+    }
   }
 
   const totalOrders = orders?.length || 0
