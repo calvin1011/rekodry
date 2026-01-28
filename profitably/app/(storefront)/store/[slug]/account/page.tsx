@@ -47,10 +47,11 @@ export default async function AccountPage({
         payment_status,
         fulfillment_status,
         created_at,
-        paid_at
+        paid_at,
+        customers!inner(email)
       `)
-      .eq('customer_id', session.customerId)
       .eq('user_id', session.storeId)
+      .eq('customers.email', session.email)
       .order('created_at', { ascending: false })
 
     orders = data
