@@ -10,10 +10,10 @@ export default async function AccountPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; debug?: string }>
 }) {
   const { slug } = await params
-  const { tab } = await searchParams
+  const { tab, debug } = await searchParams
   const session = await getSession()
 
   const defaultTab = session?.type === 'customer' ? 'orders' : 'tracking'
@@ -33,6 +33,15 @@ export default async function AccountPage({
     created_at: string
     paid_at: string | null
   }[] | null = null
+
+  let debugData: {
+    storeUserId?: string | null
+    sessionStoreId?: string | null
+    sessionEmail?: string | null
+    customerIds?: string[]
+    ordersCount?: number | null
+    ordersByEmailCount?: number | null
+  } | null = null
 
   if (showOrders && session?.type === 'customer') {
     const sessionEmail = session.email?.trim().toLowerCase()
@@ -72,6 +81,16 @@ export default async function AccountPage({
         .order('created_at', { ascending: false })
 
       orders = data
+      if (debug === '1') {
+        debugData = {
+          storeUserId: store?.user_id || null,
+          sessionStoreId: session.storeId || null,
+          sessionEmail,
+          customerIds,
+          ordersCount: data?.length || 0,
+          ordersByEmailCount: null,
+        }
+      }
     }
 
     if (!orders || orders.length === 0) {
@@ -93,6 +112,16 @@ export default async function AccountPage({
         .order('created_at', { ascending: false })
 
       orders = data
+      if (debug === '1') {
+        debugData = {
+          storeUserId: store?.user_id || null,
+          sessionStoreId: session.storeId || null,
+          sessionEmail,
+          customerIds,
+          ordersCount: null,
+          ordersByEmailCount: data?.length || 0,
+        }
+      }
     } else {
       orders = []
     }
@@ -182,6 +211,14 @@ export default async function AccountPage({
             </p>
           </div>
         </div>
+
+        {debugData && (
+          <div className="glass-dark rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-200">
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify(debugData, null, 2)}
+            </pre>
+          </div>
+        )}
 
         {showOrders && (
           <div className="space-y-4">
