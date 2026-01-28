@@ -9,7 +9,10 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const body = await request.json()
-    const { items, store_slug } = body
+    const { items, store_slug, customer_email } = body
+    const normalizedEmail = typeof customer_email === 'string'
+      ? customer_email.trim().toLowerCase()
+      : null
 
     if (!items?.length || !store_slug) {
       return NextResponse.json({ error: 'Items and store slug are required' }, { status: 400 })
@@ -89,13 +92,14 @@ export async function POST(request: Request) {
       success_url: `${request.headers.get('origin')}/store/${store_slug}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.headers.get('origin')}/store/${store_slug}`,
       // If user is logged in, pre-fill email; otherwise, Stripe asks for it
-      customer_email: user?.email || undefined,
+      customer_email: normalizedEmail || user?.email || undefined,
       shipping_address_collection: { allowed_countries: ['US'] },
       metadata: {
         store_id: store.id,
         store_slug: store_slug,
         user_id: store.user_id,
         customer_id: user?.id || '',
+        customer_email: normalizedEmail || '',
         items: JSON.stringify(items),
       },
     })

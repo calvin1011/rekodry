@@ -60,6 +60,7 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
             quantity: item.quantity,
           })),
           store_slug: storeSlug,
+          customer_email: email,
           shipping_address: {
             name,
             line1,
