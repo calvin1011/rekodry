@@ -57,6 +57,12 @@ export default async function AccountPage({
     orders = data
   }
 
+  const totalOrders = orders?.length || 0
+  const latestOrder = orders?.[0]
+  const openOrders = orders?.filter((order) =>
+    !['delivered', 'fulfilled', 'cancelled'].includes(order.fulfillment_status || 'pending')
+  ).length || 0
+
   return (
     <div className="min-h-screen bg-gradient-dark py-10 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -98,6 +104,42 @@ export default async function AccountPage({
           >
             Tracking
           </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="glass-dark rounded-xl border border-slate-800 p-4">
+            <p className="text-xs uppercase tracking-widest text-slate-500">Total Orders</p>
+            <p className="text-2xl font-bold text-slate-100 mt-2">
+              {session?.type === 'customer' ? totalOrders : '—'}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              {session?.type === 'customer' ? 'All time purchases' : 'Sign in to see history'}
+            </p>
+          </div>
+
+          <div className="glass-dark rounded-xl border border-slate-800 p-4">
+            <p className="text-xs uppercase tracking-widest text-slate-500">Open Orders</p>
+            <p className="text-2xl font-bold text-slate-100 mt-2">
+              {session?.type === 'customer' ? openOrders : '—'}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              {session?.type === 'customer' ? 'Being processed or shipped' : 'Track as guest'}
+            </p>
+          </div>
+
+          <div className="glass-dark rounded-xl border border-slate-800 p-4">
+            <p className="text-xs uppercase tracking-widest text-slate-500">Latest Order</p>
+            <p className="text-2xl font-bold text-slate-100 mt-2">
+              {latestOrder ? formatCurrency(latestOrder.total) : '—'}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              {latestOrder
+                ? `Status: ${latestOrder.fulfillment_status || 'pending'}`
+                : session?.type === 'customer'
+                ? 'No orders yet'
+                : 'Sign in to see details'}
+            </p>
+          </div>
         </div>
 
         {showOrders && (

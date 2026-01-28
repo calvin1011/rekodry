@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
+import OrderQuickActions from '@/components/storefront/OrderQuickActions'
 import { getSession } from '../../actions'
 
 export default async function OrderDetailPage({
@@ -27,7 +28,10 @@ export default async function OrderDetailPage({
         products (
           title,
           slug,
-          product_images (image_url)
+          product_images (image_url),
+          items (
+            quantity_on_hand
+          )
         )
       ),
       customer_addresses (
@@ -44,6 +48,12 @@ export default async function OrderDetailPage({
       )
     `)
     .eq('id', id)
+    .single()
+
+  const { data: storeSettings } = await supabase
+    .from('store_settings')
+    .select('store_name,business_email,business_phone')
+    .eq('store_slug', slug)
     .single()
 
   if (error || !order) {
@@ -114,6 +124,15 @@ export default async function OrderDetailPage({
             </div>
           </div>
         </div>
+
+        <OrderQuickActions
+          storeSlug={slug}
+          orderNumber={order.order_number}
+          storeName={storeSettings?.store_name}
+          businessEmail={storeSettings?.business_email}
+          businessPhone={storeSettings?.business_phone}
+          items={order.order_items}
+        />
 
         {/* Tracking Section */}
         {order.tracking_number && (
