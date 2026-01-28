@@ -10,7 +10,7 @@ export default async function AccountPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; debug?: string }>
 }) {
   const { slug } = await params
   const { tab, debug } = await searchParams
