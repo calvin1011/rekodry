@@ -20,7 +20,7 @@ interface Product {
   slug: string
   price: number
   compare_at_price: number | null
-  items: Item
+  items: Item | Item[]
   product_images: ProductImage[]
 }
 
@@ -32,8 +32,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, storeSlug, index }: ProductCardProps) {
   const mainImage = product.product_images.find((img) => img.position === 0) || product.product_images[0]
-  const isOutOfStock = product.items.quantity_on_hand === 0
-  const isLowStock = product.items.quantity_on_hand > 0 && product.items.quantity_on_hand <= 5
+  const itemData = Array.isArray(product.items) ? product.items[0] : product.items
+  const isOutOfStock = !itemData || itemData.quantity_on_hand === 0
+  const isLowStock = itemData && itemData.quantity_on_hand > 0 && itemData.quantity_on_hand <= 5
 
   return (
     <Link
@@ -66,7 +67,7 @@ export default function ProductCard({ product, storeSlug, index }: ProductCardPr
 
         {isLowStock && !isOutOfStock && (
           <div className="absolute top-2 right-2 px-2 py-1 bg-amber-500 text-white text-xs font-semibold rounded">
-            Only {product.items.quantity_on_hand} left
+            Only {itemData?.quantity_on_hand} left
           </div>
         )}
 
@@ -95,7 +96,7 @@ export default function ProductCard({ product, storeSlug, index }: ProductCardPr
 
         {!isOutOfStock && (
           <div className="mt-3 text-xs text-slate-400">
-            {product.items.quantity_on_hand} available
+            {itemData?.quantity_on_hand} available
           </div>
         )}
       </div>

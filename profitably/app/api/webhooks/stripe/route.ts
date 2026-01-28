@@ -45,7 +45,20 @@ export async function POST(request: Request) {
       const userId = metadata.user_id
       const customerEmailRaw = session.customer_details?.email || session.customer_email
       const customerEmail = customerEmailRaw?.trim().toLowerCase()
-      const shippingAddress = session.shipping_details?.address
+      
+      // Stripe stores shipping address in different places depending on the checkout mode
+      const shippingAddress = 
+        session.shipping_details?.address || 
+        session.collected_information?.shipping_details?.address ||
+        session.customer_details?.address
+      
+      const shippingName = 
+        session.shipping_details?.name || 
+        session.collected_information?.shipping_details?.name ||
+        session.customer_details?.name ||
+        'Customer'
+      
+      console.log('Shipping Address from Stripe:', JSON.stringify(shippingAddress, null, 2))
 
       // Idempotency guard: skip if we already processed this session
       const { data: existingOrder } = await supabase
@@ -80,7 +93,7 @@ export async function POST(request: Request) {
             .from('customers')
             .insert({
               email: customerEmail,
-              full_name: session.shipping_details?.name || 'Customer',
+              full_name: shippingName,
               phone: session.customer_details?.phone || null,
             })
             .select()
@@ -341,7 +354,7 @@ export async function POST(request: Request) {
             subject: `Order Confirmation - ${orderNumber}`,
             html: getOrderConfirmationEmailHtml({
               orderNumber,
-              customerName: session.shipping_details?.name || 'Customer',
+              customerName: shippingName,
               customerEmail,
               orderDate: new Date().toLocaleDateString(),
               items: orderItemsData.map(({ product, cartItem, itemSubtotal }) => ({

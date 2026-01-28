@@ -23,6 +23,9 @@ export default function StorefrontSidebar() {
   const isAccountPath = pathname.startsWith(`${basePath}/account`)
   const isOrdersPath = pathname.startsWith(`${basePath}/orders`)
 
+  const isHelpPath = pathname.startsWith(`${basePath}/help`)
+  const isContactPath = pathname.startsWith(`${basePath}/contact`)
+
   const navItems: NavItem[] = [
     {
       id: 'store',
@@ -41,6 +44,18 @@ export default function StorefrontSidebar() {
       label: 'Track Order',
       href: `${basePath}/account?tab=tracking`,
       isActive: isAccountPath && activeTab === 'tracking',
+    },
+    {
+      id: 'help',
+      label: 'Help & FAQ',
+      href: `${basePath}/help`,
+      isActive: isHelpPath,
+    },
+    {
+      id: 'contact',
+      label: 'Contact Us',
+      href: `${basePath}/contact`,
+      isActive: isContactPath,
     },
   ]
 
