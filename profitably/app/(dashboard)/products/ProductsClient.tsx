@@ -62,6 +62,7 @@ export default function ProductsClient({ initialProducts, availableItems }: Prod
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all')
+  const [showOutOfStock, setShowOutOfStock] = useState(false)
 
   const handleEdit = (product: Product) => {
     setProductToEdit(product)
@@ -117,7 +118,9 @@ export default function ProductsClient({ initialProducts, availableItems }: Prod
       (filterStatus === 'published' && product.is_published) ||
       (filterStatus === 'draft' && !product.is_published)
 
-    return matchesSearch && matchesStatus
+    const matchesStock = showOutOfStock || product.items.quantity_on_hand > 0
+
+    return matchesSearch && matchesStatus && matchesStock
   })
 
   const publishedCount = initialProducts.filter(p => p.is_published).length
@@ -162,6 +165,16 @@ export default function ProductsClient({ initialProducts, availableItems }: Prod
             <option value="published">Published</option>
             <option value="draft">Drafts</option>
           </select>
+
+          <label className="inline-flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-700 text-slate-300 text-sm">
+            <input
+              type="checkbox"
+              checked={showOutOfStock}
+              onChange={(e) => setShowOutOfStock(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-600 text-profit-500 focus:ring-profit-500"
+            />
+            Show out of stock
+          </label>
 
           <button
             onClick={() => setIsModalOpen(true)}
