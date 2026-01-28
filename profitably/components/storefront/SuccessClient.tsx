@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react'
 import { useCart } from '@/lib/cart-context'
-import Link from 'next/link'
 
 interface SuccessClientProps {
   storeSlug: string
@@ -33,7 +32,7 @@ export default function SuccessClient({ storeSlug, sessionId }: SuccessClientPro
         </p>
 
         <div className="space-y-3">
-          <Link
+          <a
             href={`/store/${storeSlug}`}
             className="block w-full px-6 py-3 rounded-xl font-semibold
                      bg-gradient-profit text-white
@@ -43,7 +42,7 @@ export default function SuccessClient({ storeSlug, sessionId }: SuccessClientPro
                      transition-smooth"
           >
             Continue Shopping
-          </Link>
+          </a>
 
           <p className="text-xs text-slate-500 mt-4">
             Order ID: {sessionId.substring(0, 20)}...

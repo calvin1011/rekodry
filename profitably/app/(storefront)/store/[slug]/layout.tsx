@@ -31,7 +31,7 @@ export default async function StoreLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
-              <Link href={`/store/${slug}`} className="flex items-center gap-3">
+              <a href={`/store/${slug}`} className="flex items-center gap-3">
                 {store.logo_url && (
                   <img
                     src={store.logo_url}
@@ -42,7 +42,7 @@ export default async function StoreLayout({
                 <span className="text-xl font-bold text-slate-100">
                   {store.store_name}
                 </span>
-              </Link>
+              </a>
 
               <nav className="hidden md:flex items-center gap-6">
                 <Link
