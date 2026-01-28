@@ -7,7 +7,7 @@ type Product = {
   id: string
   title: string
   description: string | null
-  slug: string | null
+  slug: string
   price: number
   compare_at_price: number | null
   items: {

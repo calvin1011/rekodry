@@ -52,6 +52,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     const itemData = Array.isArray(product.items) ? product.items[0] : product.items
     return (
       product.is_published === true &&
+      product.slug &&
       itemData &&
       itemData.quantity_on_hand > 0
     )
@@ -83,7 +84,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           )}
         </div>
 
-        <ProductGrid products={publishedProducts} storeSlug={slug} />
+        <ProductGrid products={publishedProducts as any[]} storeSlug={slug} />
       </div>
     </div>
   )
