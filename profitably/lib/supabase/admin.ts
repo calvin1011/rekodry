@@ -5,6 +5,10 @@ export function createAdminClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !serviceRoleKey) {
+    console.error('Missing Supabase admin config', {
+      hasUrl: !!url,
+      hasServiceRoleKey: !!serviceRoleKey,
+    })
     throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
   }
 
