@@ -196,6 +196,7 @@ export async function POST(request: Request) {
       const orderItems = []
       const inventoryUpdates = []
       const salesRecords = []
+      const outOfStockItemIds = new Set<string>()
 
       for (const { product, cartItem, itemSubtotal } of orderItemsData) {
         const itemData = Array.isArray(product.items) ? product.items[0] : product.items
@@ -217,6 +218,10 @@ export async function POST(request: Request) {
           newOnHand: itemData.quantity_on_hand - cartItem.quantity,
           newSold: itemData.quantity_sold + cartItem.quantity,
         })
+
+        if (itemData.quantity_on_hand - cartItem.quantity <= 0) {
+          outOfStockItemIds.add(itemData.id)
+        }
 
         const purchasePrice = itemData.purchase_price
         const salePrice = product.price
@@ -288,6 +293,20 @@ export async function POST(request: Request) {
       }
 
       console.log('Inventory updated')
+
+      if (outOfStockItemIds.size > 0) {
+        const { error: unpublishError } = await supabase
+          .from('products')
+          .update({ is_published: false, published_at: null })
+          .in('item_id', Array.from(outOfStockItemIds))
+          .eq('user_id', userId)
+
+        if (unpublishError) {
+          console.error('Error unpublishing out-of-stock products:', unpublishError)
+        } else {
+          console.log('Unpublished out-of-stock products:', outOfStockItemIds.size)
+        }
+      }
 
       const { error: customerUpdateError } = await supabase
         .from('customers')
