@@ -122,8 +122,6 @@ export default async function AccountPage({
           ordersByEmailCount: data?.length || 0,
         }
       }
-    } else {
-      orders = []
     }
   }
 
