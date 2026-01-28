@@ -5,6 +5,7 @@ import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import { loadStripe } from '@stripe/stripe-js';
 import Link from 'next/link'
+import AccountLoginForm from '@/app/(storefront)/store/[slug]/account/AccountLoginForm'
 
 interface StoreSettings {
   id: string
@@ -119,6 +120,14 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Shipping Form Column */}
           <div className="glass-dark rounded-2xl p-6">
+            <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+              <h2 className="text-lg font-semibold text-slate-100 mb-2">Already bought here?</h2>
+              <p className="text-sm text-slate-400 mb-4">
+                Sign in to view order history and tracking. New customers can continue checkout below.
+              </p>
+              <AccountLoginForm storeSlug={storeSlug} compact />
+            </div>
+
             <h2 className="text-xl font-bold text-slate-100 mb-6">Shipping Information</h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">

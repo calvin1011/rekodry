@@ -6,14 +6,6 @@ export default async function CheckoutPage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect(`/login?redirect=/store/${slug}/checkout`)
-  }
-
   const { data: store, error: storeError } = await supabase
     .from('store_settings')
     .select('*')

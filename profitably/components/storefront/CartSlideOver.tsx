@@ -28,16 +28,16 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
           <div className="w-screen max-w-md pointer-events-auto transform transition-transform animate-slide-up sm:animate-none">
 
             {/* Glass effect container matching your global theme */}
-            <div className="flex h-full flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl border-l border-slate-200 dark:border-slate-800">
+            <div className="flex h-full flex-col bg-slate-950/95 backdrop-blur-xl shadow-2xl border-l border-slate-800">
 
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800/50">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-                  Your Cart <span className="text-sm font-normal text-slate-500 ml-2">({items.length})</span>
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800/70">
+                <h2 className="text-xl font-bold text-slate-100">
+                  Your Cart <span className="text-sm font-normal text-slate-400 ml-2">({items.length})</span>
                 </h2>
                 <button
                   onClick={onClose}
-                  className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-500 transition-colors"
+                  className="p-2 -mr-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -49,29 +49,29 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
               <div className="flex-1 overflow-y-auto">
                 {items.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center p-8 space-y-4">
-                    <div className="w-20 h-20 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center">
-                      <svg className="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-20 h-20 rounded-2xl bg-slate-800/60 flex items-center justify-center">
+                      <svg className="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Your cart is empty</h3>
-                      <p className="text-slate-500 text-sm">Looks like you haven't added anything yet.</p>
+                      <h3 className="text-lg font-medium text-slate-100">Your cart is empty</h3>
+                      <p className="text-slate-400 text-sm">Looks like you haven't added anything yet.</p>
                     </div>
 
                     <Link
                       href={`/store/${storeSlug}`}
                       onClick={onClose}
-                      className="mt-4 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 transition-colors inline-block"
+                      className="mt-4 px-6 py-2.5 rounded-lg text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 transition-colors inline-block"
                     >
                       Start Shopping
                     </Link>
                   </div>
                 ) : (
-                  <ul className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                  <ul className="divide-y divide-slate-800/60">
                     {items.map((item) => (
-                      <li key={item.product_id} className="flex gap-5 p-6 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
-                        <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                      <li key={item.product_id} className="flex gap-5 p-6 hover:bg-slate-900/40 transition-colors">
+                        <div className="relative flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-slate-800 bg-slate-900/70">
                           <img
                             src={item.image_url}
                             alt={item.title}
@@ -81,34 +81,34 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
 
                         <div className="flex-1 flex flex-col justify-between min-w-0">
                           <div className="flex justify-between items-start gap-2">
-                            <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 line-clamp-2 leading-relaxed">
+                            <h3 className="text-sm font-medium text-slate-100 line-clamp-2 leading-relaxed">
                               {item.title}
                             </h3>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap ml-2">
+                            <p className="text-sm font-semibold text-slate-100 whitespace-nowrap ml-2">
                               {formatCurrency(item.price * item.quantity)}
                             </p>
                           </div>
 
                           <div className="flex items-center justify-between mt-3">
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-400">
                               {formatCurrency(item.price)} each
                             </p>
 
                             <div className="flex items-center gap-4">
-                              <div className="flex items-center h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/50 overflow-hidden">
+                              <div className="flex items-center h-8 rounded-lg border border-slate-700 bg-slate-900/70 overflow-hidden">
                                 <button
                                   onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30"
+                                  className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors disabled:opacity-30"
                                 >
                                   -
                                 </button>
-                                <span className="w-8 text-center text-xs font-medium text-slate-900 dark:text-slate-100 border-x border-slate-100 dark:border-slate-800 py-1">
+                                <span className="w-8 text-center text-xs font-medium text-slate-100 border-x border-slate-800 py-1">
                                   {item.quantity}
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
                                   disabled={item.quantity >= item.max_quantity}
-                                  className="w-8 h-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30"
+                                  className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors disabled:opacity-30"
                                 >
                                   +
                                 </button>
@@ -116,7 +116,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
 
                               <button
                                 onClick={() => removeItem(item.product_id)}
-                                className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors"
+                                className="text-xs font-medium text-red-400 hover:text-red-300 transition-colors"
                               >
                                 Remove
                               </button>
@@ -131,19 +131,19 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
 
               {/* Footer */}
               {items.length > 0 && (
-                <div className="flex-shrink-0 border-t border-slate-100 dark:border-slate-800 p-6 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
+                <div className="flex-shrink-0 border-t border-slate-800 p-6 bg-slate-950/80 backdrop-blur-md">
                   <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                    <div className="flex justify-between text-sm text-slate-400">
                       <span>Subtotal</span>
-                      <span className="font-medium text-slate-900 dark:text-slate-200">{formatCurrency(subtotal)}</span>
+                      <span className="font-medium text-slate-200">{formatCurrency(subtotal)}</span>
                     </div>
-                    <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                      <span className="text-base font-bold text-slate-900 dark:text-slate-50">Total</span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                    <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+                      <span className="text-base font-bold text-slate-100">Total</span>
+                      <span className="text-xl font-bold text-slate-100">
                         {formatCurrency(subtotal)}
                       </span>
                     </div>
-                    <p className="text-xs text-center text-slate-500 dark:text-slate-500 pt-2">
+                    <p className="text-xs text-center text-slate-500 pt-2">
                       Shipping and taxes calculated at checkout.
                     </p>
                   </div>
@@ -164,8 +164,8 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                       href={`/store/${storeSlug}`}
                       onClick={onClose}
                       className="block w-full py-3 rounded-xl font-medium text-center
-                               text-slate-600 dark:text-slate-400
-                               hover:bg-slate-100 dark:hover:bg-slate-800
+                               text-slate-300
+                               hover:bg-slate-800
                                transition-colors"
                     >
                       Continue Shopping
