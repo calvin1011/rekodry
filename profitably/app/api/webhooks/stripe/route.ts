@@ -43,7 +43,8 @@ export async function POST(request: Request) {
 
       const items = JSON.parse(metadata.items)
       const userId = metadata.user_id
-      const customerEmail = session.customer_details?.email || session.customer_email
+      const customerEmailRaw = session.customer_details?.email || session.customer_email
+      const customerEmail = customerEmailRaw?.trim().toLowerCase()
       const shippingAddress = session.shipping_details?.address
 
       console.log('=== WEBHOOK PROCESSING ===')
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
         const { data: existingCustomer } = await supabase
           .from('customers')
           .select('id')
-          .eq('email', customerEmail)
+          .ilike('email', customerEmail)
           .single()
 
         if (existingCustomer) {

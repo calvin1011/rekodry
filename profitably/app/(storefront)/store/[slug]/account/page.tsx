@@ -35,12 +35,13 @@ export default async function AccountPage({
   }[] | null = null
 
   if (showOrders && session?.type === 'customer') {
+    const sessionEmail = session.email?.trim().toLowerCase()
     const supabase = await createClient()
 
     const { data: matchingCustomers } = await supabase
       .from('customers')
       .select('id')
-      .ilike('email', session.email)
+      .ilike('email', sessionEmail)
 
     const customerIds = [
       session.customerId,

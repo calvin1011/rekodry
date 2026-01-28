@@ -25,8 +25,9 @@ function verifyToken(token: string): any | null {
 
 // Track a single order (guest access)
 export async function trackOrder(storeSlug: string, prevState: any, formData: FormData) {
-  const email = formData.get('email') as string
+  const rawEmail = formData.get('email') as string
   const orderNumber = formData.get('orderNumber') as string
+  const email = rawEmail?.trim().toLowerCase()
 
   if (!email || !orderNumber) {
     return { error: 'Please provide both email and order number' }
@@ -46,7 +47,7 @@ export async function trackOrder(storeSlug: string, prevState: any, formData: Fo
     .from('orders')
     .select('id, customers!inner(email)')
     .eq('order_number', orderNumber)
-    .eq('customers.email', email)
+    .ilike('customers.email', email)
     .eq('user_id', store.user_id)
     .single()
 
@@ -74,7 +75,8 @@ export async function trackOrder(storeSlug: string, prevState: any, formData: Fo
 
 // Login with email (sends "magic link" OR just sets session)
 export async function loginWithEmail(storeSlug: string, prevState: any, formData: FormData) {
-  const email = formData.get('email') as string
+  const rawEmail = formData.get('email') as string
+  const email = rawEmail?.trim().toLowerCase()
 
   if (!email) {
     return { error: 'Email is required' }
@@ -94,7 +96,7 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
   const { data: customer } = await supabase
     .from('customers')
     .select('id, email')
-    .eq('email', email)
+    .ilike('email', email)
     .single()
 
   if (!customer) {
