@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import { getSession, logout } from '../actions'
@@ -36,7 +36,7 @@ export default async function AccountPage({
 
   if (showOrders && session?.type === 'customer') {
     const sessionEmail = session.email?.trim().toLowerCase()
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: matchingCustomers } = await supabase
       .from('customers')

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -33,7 +34,7 @@ export async function trackOrder(storeSlug: string, prevState: any, formData: Fo
     return { error: 'Please provide both email and order number' }
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: store } = await supabase
     .from('store_settings')
@@ -82,7 +83,7 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
     return { error: 'Email is required' }
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: store } = await supabase
     .from('store_settings')
