@@ -87,7 +87,7 @@ export default function SignupPage() {
           <h1 className="text-4xl font-bold mb-2">
             <span className="gradient-text">Rekodry</span>
           </h1>
-          <p className="text-slate-400">Start tracking your profits today</p>
+          <p className="text-slate-400">Discover More. Spend Less.</p>
         </div>
 
         <div className="glass-dark rounded-2xl p-8 shadow-glass-lg animate-slide-up">

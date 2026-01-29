@@ -69,7 +69,7 @@ function LoginForm() {
           <h1 className="text-4xl font-bold mb-2">
             <span className="gradient-text">Rekodry</span>
           </h1>
-          <p className="text-slate-400">Welcome back! Track your profits.</p>
+          <p className="text-slate-400">Discover More. Spend Less.</p>
         </div>
 
         {/* Login card */}

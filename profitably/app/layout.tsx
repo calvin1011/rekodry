@@ -6,8 +6,8 @@ import React from "react";
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Rekodry - Track Your Reselling Profits',
-  description: 'Multi-platform inventory and profit tracking for resellers',
+  title: 'Rekodry - Discover More. Spend Less.',
+  description: 'Your destination for great deals on everything',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
