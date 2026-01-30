@@ -11,7 +11,7 @@ interface CartSlideOverProps {
 }
 
 export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideOverProps) {
-  const { items, removeItem, updateQuantity, subtotal } = useCart()
+  const { items, removeItem, updateQuantity, clearCart, subtotal } = useCart()
 
   if (!isOpen) return null
 
@@ -137,6 +137,13 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                       <span>Subtotal</span>
                       <span className="font-medium text-slate-200">{formatCurrency(subtotal)}</span>
                     </div>
+                    <button
+                      onClick={clearCart}
+                      className="w-full text-sm font-medium text-red-400 hover:text-red-300
+                               hover:bg-red-500/10 rounded-lg py-2 transition-colors"
+                    >
+                      Clear Cart
+                    </button>
                     <div className="flex justify-between items-center pt-3 border-t border-slate-800">
                       <span className="text-base font-bold text-slate-100">Total</span>
                       <span className="text-xl font-bold text-slate-100">
