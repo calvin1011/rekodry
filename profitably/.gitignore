@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+/profitably/FullLogo.jpg
+
 # next.js
 /.next/
 /out/
