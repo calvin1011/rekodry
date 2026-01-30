@@ -15,15 +15,36 @@ export default async function ProductDetailPage({
   
   // Get customer session
   const cookieStore = await cookies()
-  const customerId = cookieStore.get('customer_id')?.value || null
+  const customerIdCookie = cookieStore.get('customer_id')?.value || null
   const sessionToken = cookieStore.get('customer_session')?.value || null
-  let sessionType: 'customer' | 'guest' | 'none' = customerId ? 'customer' : 'none'
+  let sessionType: 'customer' | 'guest' | 'none' = customerIdCookie ? 'customer' : 'none'
+  let derivedCustomerId: string | null = customerIdCookie
 
-  if (!customerId && sessionToken) {
+  if (!customerIdCookie && sessionToken) {
     try {
       const payload = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
       if (payload?.exp && Date.now() < payload.exp && payload?.type === 'guest') {
         sessionType = 'guest'
+        if (payload?.orderId) {
+          const { data: order } = await adminClient
+            .from('orders')
+            .select('customer_id')
+            .eq('id', payload.orderId)
+            .single()
+          derivedCustomerId = order?.customer_id || null
+        }
+      } else if (payload?.exp && Date.now() < payload.exp && payload?.type === 'customer') {
+        sessionType = 'customer'
+        if (payload?.customerId) {
+          derivedCustomerId = payload.customerId
+        } else if (payload?.email) {
+          const { data: customer } = await adminClient
+            .from('customers')
+            .select('id')
+            .ilike('email', payload.email)
+            .single()
+          derivedCustomerId = customer?.id || null
+        }
       }
     } catch {
       sessionType = 'none'
@@ -115,7 +136,7 @@ export default async function ProductDetailPage({
       store={store}
       storeSlug={slug}
       relatedProducts={relatedProducts || []}
-      customerId={customerId}
+      customerId={derivedCustomerId}
       sessionType={sessionType}
       averageRating={averageRating}
       totalReviews={totalReviews}
