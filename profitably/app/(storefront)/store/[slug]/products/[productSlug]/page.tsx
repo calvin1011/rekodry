@@ -16,6 +16,19 @@ export default async function ProductDetailPage({
   // Get customer session
   const cookieStore = await cookies()
   const customerId = cookieStore.get('customer_id')?.value || null
+  const sessionToken = cookieStore.get('customer_session')?.value || null
+  let sessionType: 'customer' | 'guest' | 'none' = customerId ? 'customer' : 'none'
+
+  if (!customerId && sessionToken) {
+    try {
+      const payload = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
+      if (payload?.exp && Date.now() < payload.exp && payload?.type === 'guest') {
+        sessionType = 'guest'
+      }
+    } catch {
+      sessionType = 'none'
+    }
+  }
 
   const { data: store, error: storeError } = await supabase
     .from('store_settings')
@@ -103,6 +116,7 @@ export default async function ProductDetailPage({
       storeSlug={slug}
       relatedProducts={relatedProducts || []}
       customerId={customerId}
+      sessionType={sessionType}
       averageRating={averageRating}
       totalReviews={totalReviews}
     />

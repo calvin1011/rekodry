@@ -50,6 +50,7 @@ interface ProductDetailClientProps {
   storeSlug: string
   relatedProducts: Product[]
   customerId?: string | null
+  sessionType?: 'customer' | 'guest' | 'none'
   averageRating?: number
   totalReviews?: number
 }
@@ -60,6 +61,7 @@ export default function ProductDetailClient({
   storeSlug,
   relatedProducts,
   customerId,
+  sessionType = 'none',
   averageRating = 0,
   totalReviews = 0,
 }: ProductDetailClientProps) {
@@ -288,6 +290,8 @@ export default function ProductDetailClient({
           productId={product.id}
           customerId={customerId || null}
           storeName={store.store_name}
+          storeSlug={storeSlug}
+          sessionType={sessionType}
         />
 
         {relatedProducts.length > 0 && (

@@ -119,6 +119,13 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
     path: '/',
     maxAge: 7 * 24 * 60 * 60 // 7 days
   })
+  cookieStore.set('customer_id', customer.id, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 // 7 days
+  })
 
   redirect(`/store/${storeSlug}/account`)
 }
@@ -126,6 +133,7 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
 export async function logout(storeSlug: string) {
   const cookieStore = await cookies()
   cookieStore.delete(COOKIE_NAME)
+  cookieStore.delete('customer_id')
   redirect(`/store/${storeSlug}`)
 }
 
