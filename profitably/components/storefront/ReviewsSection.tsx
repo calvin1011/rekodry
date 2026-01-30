@@ -24,9 +24,17 @@ interface ReviewsSectionProps {
   productId: string
   customerId: string | null
   storeName: string
+  storeSlug: string
+  sessionType?: 'customer' | 'guest' | 'none'
 }
 
-export default function ReviewsSection({ productId, customerId, storeName }: ReviewsSectionProps) {
+export default function ReviewsSection({
+  productId,
+  customerId,
+  storeName,
+  storeSlug,
+  sessionType = 'none',
+}: ReviewsSectionProps) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [averageRating, setAverageRating] = useState(0)
   const [totalReviews, setTotalReviews] = useState(0)
@@ -296,9 +304,18 @@ export default function ReviewsSection({ productId, customerId, storeName }: Rev
       {/* Sign in prompt */}
       {!customerId && (
         <div className="mt-6 text-center p-4 bg-slate-800/50 rounded-lg">
-          <p className="text-slate-400">
-            Sign in to leave a review
+          <p className="text-slate-400 mb-3">
+            {sessionType === 'guest'
+              ? 'You are currently signed in for order tracking. Sign in with your email to leave a review.'
+              : 'Sign in with the email you used at checkout to leave a review.'}
           </p>
+          <a
+            href={`/store/${storeSlug}/account?tab=orders`}
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium
+                     text-white bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors"
+          >
+            {sessionType === 'guest' ? 'Sign in to review' : 'Sign in to review'}
+          </a>
         </div>
       )}
     </div>
