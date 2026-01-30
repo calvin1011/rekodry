@@ -72,7 +72,7 @@ export default async function WishlistPage({ params }: { params: Promise<{ slug:
         </div>
 
         <WishlistClient
-          wishlistItems={storeWishlistItems}
+          wishlistItems={storeWishlistItems as any}
           storeSlug={slug}
           customerId={customerId}
         />
