@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import ProductDetailClient from '@/components/storefront/ProductDetailClient'
+import { resolveCustomerSession } from '@/lib/customer-session'
 
 export default async function ProductDetailPage({
   params,
@@ -15,55 +16,39 @@ export default async function ProductDetailPage({
   
   // Get customer session
   const cookieStore = await cookies()
-  const customerIdCookie = cookieStore.get('customer_id')?.value || null
   const sessionToken = cookieStore.get('customer_session')?.value || null
-  let sessionType: 'customer' | 'guest' | 'none' = customerIdCookie ? 'customer' : 'none'
-  let derivedCustomerId: string | null = customerIdCookie
+  const customerIdCookie = cookieStore.get('customer_id')?.value || null
 
-  if (!customerIdCookie && sessionToken) {
-    try {
-      const payload = JSON.parse(Buffer.from(sessionToken, 'base64').toString())
-      if (payload?.exp && Date.now() < payload.exp && payload?.type === 'guest') {
-        if (payload?.orderId) {
-          const { data: order, error: orderError } = await adminClient
-            .from('orders')
-            .select('customer_id')
-            .eq('id', payload.orderId)
-            .single()
-          if (orderError || !order?.customer_id) {
-            console.error('Error resolving customer from guest session:', orderError)
-            sessionType = 'none'
-            derivedCustomerId = null
-          } else {
-            sessionType = 'guest'
-            derivedCustomerId = order.customer_id
-          }
+  const { sessionType, customerId: derivedCustomerId } = await resolveCustomerSession({
+    customerIdCookie,
+    sessionToken,
+    resolvers: {
+      getOrderCustomerId: async (orderId) => {
+        const { data: order, error: orderError } = await adminClient
+          .from('orders')
+          .select('customer_id')
+          .eq('id', orderId)
+          .single()
+        if (orderError || !order?.customer_id) {
+          console.error('Error resolving customer from guest session:', orderError)
+          return null
         }
-      } else if (payload?.exp && Date.now() < payload.exp && payload?.type === 'customer') {
-        if (payload?.customerId) {
-          sessionType = 'customer'
-          derivedCustomerId = payload.customerId
-        } else if (payload?.email) {
-          const { data: customer, error: customerError } = await adminClient
-            .from('customers')
-            .select('id')
-            .ilike('email', payload.email)
-            .single()
-          if (customerError || !customer?.id) {
-            console.error('Error resolving customer from session email:', customerError)
-            sessionType = 'none'
-            derivedCustomerId = null
-          } else {
-            sessionType = 'customer'
-            derivedCustomerId = customer.id
-          }
+        return order.customer_id
+      },
+      getCustomerIdByEmail: async (email) => {
+        const { data: customer, error: customerError } = await adminClient
+          .from('customers')
+          .select('id')
+          .ilike('email', email)
+          .single()
+        if (customerError || !customer?.id) {
+          console.error('Error resolving customer from session email:', customerError)
+          return null
         }
-      }
-    } catch {
-      sessionType = 'none'
-      derivedCustomerId = null
-    }
-  }
+        return customer.id
+      },
+    },
+  })
 
   const { data: store, error: storeError } = await supabase
     .from('store_settings')
