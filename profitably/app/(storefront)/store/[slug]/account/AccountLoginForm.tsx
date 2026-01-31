@@ -7,9 +7,14 @@ import Link from 'next/link'
 interface AccountLoginFormProps {
   storeSlug: string
   compact?: boolean
+  redirectTo?: string
 }
 
-export default function AccountLoginForm({ storeSlug, compact = false }: AccountLoginFormProps) {
+export default function AccountLoginForm({
+  storeSlug,
+  compact = false,
+  redirectTo,
+}: AccountLoginFormProps) {
   const [state, action, isPending] = useActionState(loginWithEmail.bind(null, storeSlug), null)
 
   return (
@@ -26,6 +31,9 @@ export default function AccountLoginForm({ storeSlug, compact = false }: Account
         </div>
 
         <form action={action} className="space-y-6">
+          {redirectTo && (
+            <input type="hidden" name="redirectTo" value={redirectTo} />
+          )}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
               Email Address

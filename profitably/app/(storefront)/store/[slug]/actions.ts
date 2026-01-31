@@ -78,6 +78,10 @@ export async function trackOrder(storeSlug: string, prevState: any, formData: Fo
 export async function loginWithEmail(storeSlug: string, prevState: any, formData: FormData) {
   const rawEmail = formData.get('email') as string
   const email = rawEmail?.trim().toLowerCase()
+  const redirectToRaw = formData.get('redirectTo') as string | null
+  const redirectTo = redirectToRaw?.startsWith(`/store/${storeSlug}`)
+    ? redirectToRaw
+    : `/store/${storeSlug}/account`
 
   if (!email) {
     return { error: 'Email is required' }
@@ -127,7 +131,7 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
     maxAge: 7 * 24 * 60 * 60 // 7 days
   })
 
-  redirect(`/store/${storeSlug}/account`)
+  redirect(redirectTo)
 }
 
 export async function logout(storeSlug: string) {

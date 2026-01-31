@@ -141,7 +141,11 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
               <p className="text-sm text-slate-400 mb-4">
                 Sign in to view order history and tracking. New customers can continue checkout below.
               </p>
-              <AccountLoginForm storeSlug={storeSlug} compact />
+              <AccountLoginForm
+                storeSlug={storeSlug}
+                compact
+                redirectTo={`/store/${storeSlug}/checkout`}
+              />
             </div>
 
             <h2 className="text-xl font-bold text-slate-100 mb-6">Shipping Information</h2>
