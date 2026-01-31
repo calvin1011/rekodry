@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import { loadStripe } from '@stripe/stripe-js';
@@ -18,17 +18,18 @@ interface StoreSettings {
 interface CheckoutClientProps {
   store: StoreSettings
   storeSlug: string
+  prefillEmail?: string | null
 }
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps) {
+export default function CheckoutClient({ store, storeSlug, prefillEmail = null }: CheckoutClientProps) {
   // Added updateQuantity and removeItem to the destructuring
   const { items, subtotal, updateQuantity, removeItem } = useCart()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(prefillEmail || '')
   const [name, setName] = useState('')
   const [line1, setLine1] = useState('')
   const [line2, setLine2] = useState('')
@@ -36,6 +37,20 @@ export default function CheckoutClient({ store, storeSlug }: CheckoutClientProps
   const [state, setState] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [country, setCountry] = useState('US')
+
+  useEffect(() => {
+    if (prefillEmail) return
+    const savedEmail = localStorage.getItem('checkout_email')
+    if (savedEmail && !email) {
+      setEmail(savedEmail)
+    }
+  }, [email, prefillEmail])
+
+  useEffect(() => {
+    if (email) {
+      localStorage.setItem('checkout_email', email)
+    }
+  }, [email])
 
   const shippingCost = store.free_shipping_threshold && subtotal >= store.free_shipping_threshold
     ? 0
