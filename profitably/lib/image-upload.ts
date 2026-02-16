@@ -3,7 +3,8 @@ import heic2any from 'heic2any'
 const HEIC_TYPES = ['image/heic', 'image/heif']
 const HEIC_EXT = /\.(heic|heif)$/i
 
-function isHeic(file: File): boolean {
+/** HEIC/HEIF (e.g. iPhone); Windows often leaves file.type empty for these. */
+export function isHeic(file: File): boolean {
   const type = (file.type || '').toLowerCase()
   if (HEIC_TYPES.includes(type)) return true
   return HEIC_EXT.test(file.name)

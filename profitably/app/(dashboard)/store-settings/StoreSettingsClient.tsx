@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { convertHeicToJpegIfNeeded } from '@/lib/image-upload'
+import { convertHeicToJpegIfNeeded, isHeic } from '@/lib/image-upload'
 
 interface StoreSettings {
   id: string
@@ -100,7 +100,7 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
     setError(null)
 
     try {
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith('image/') && !isHeic(file)) {
         throw new Error('Only image files are allowed')
       }
 
