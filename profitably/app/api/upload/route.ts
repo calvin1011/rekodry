@@ -31,21 +31,30 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    const extToType: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+    }
+    const contentType =
+      ALLOWED_TYPES.includes(file.type) ? file.type : ext ? extToType[ext] : null
+    if (!contentType) {
       return NextResponse.json(
         { error: 'File must be JPEG, PNG, or WebP' },
         { status: 400 }
       )
     }
 
-    const fileExt = file.name.split('.').pop()
+    const fileExt = ext || 'jpg'
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${user.id}/${fileName}`
 
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(filePath, file, {
-        contentType: file.type,
+        contentType,
         upsert: false,
       })
 
