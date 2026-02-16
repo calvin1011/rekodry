@@ -108,7 +108,11 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
       try {
         fileToUpload = await convertHeicToJpegIfNeeded(file)
       } catch {
-        throw new Error('Could not convert image. Try saving as JPG or use a different file.')
+        if (isHeic(file)) {
+          fileToUpload = file
+        } else {
+          throw new Error('Could not convert image. Try saving as JPG or use a different file.')
+        }
       }
       if (fileToUpload.size > 5 * 1024 * 1024) {
         throw new Error('Image must be less than 5MB')
