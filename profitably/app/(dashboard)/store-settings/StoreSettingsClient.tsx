@@ -104,7 +104,12 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
         throw new Error('Only image files are allowed')
       }
 
-      const fileToUpload = await convertHeicToJpegIfNeeded(file)
+      let fileToUpload: File
+      try {
+        fileToUpload = await convertHeicToJpegIfNeeded(file)
+      } catch {
+        throw new Error('Could not convert image. Try saving as JPG or use a different file.')
+      }
       if (fileToUpload.size > 5 * 1024 * 1024) {
         throw new Error('Image must be less than 5MB')
       }
@@ -117,10 +122,10 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
         body: formData,
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({ error: 'Invalid response' }))
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to upload image')
+        throw new Error(data?.error || 'Failed to upload image')
       }
 
       if (type === 'logo') {

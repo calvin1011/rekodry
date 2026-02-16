@@ -125,7 +125,13 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
           continue
         }
 
-        const fileToUpload = await convertHeicToJpegIfNeeded(file)
+        let fileToUpload: File
+        try {
+          fileToUpload = await convertHeicToJpegIfNeeded(file)
+        } catch {
+          setError('Could not convert image. Try saving as JPG or use a different file.')
+          continue
+        }
         if (fileToUpload.size > 5 * 1024 * 1024) {
           setError('Image must be less than 5MB')
           continue
@@ -139,10 +145,10 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
           body: formData,
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => ({ error: 'Invalid response' }))
 
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to upload image')
+          throw new Error(data?.error || 'Failed to upload image')
         }
 
         setImages((prev) => [...prev, { url: data.url, alt: title || '', path: data.path }])
