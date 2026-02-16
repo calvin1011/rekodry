@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
+import { convertHeicToJpegIfNeeded } from '@/lib/image-upload'
 
 interface AvailableItem {
   id: string
@@ -124,13 +125,14 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
           continue
         }
 
-        if (file.size > 5 * 1024 * 1024) {
+        const fileToUpload = await convertHeicToJpegIfNeeded(file)
+        if (fileToUpload.size > 5 * 1024 * 1024) {
           setError('Image must be less than 5MB')
           continue
         }
 
         const formData = new FormData()
-        formData.append('file', file)
+        formData.append('file', fileToUpload)
 
         const response = await fetch('/api/upload', {
           method: 'POST',
@@ -429,7 +431,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif"
                     onChange={(e) => handleFileUpload(e.target.files)}
                     className="hidden"
                   />
