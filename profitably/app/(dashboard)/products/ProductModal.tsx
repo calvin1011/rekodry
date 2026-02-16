@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
-import { convertHeicToJpegIfNeeded } from '@/lib/image-upload'
+import { convertHeicToJpegIfNeeded, isHeic } from '@/lib/image-upload'
 
 interface AvailableItem {
   id: string
@@ -120,7 +120,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
 
-        if (!file.type.startsWith('image/')) {
+        if (!file.type.startsWith('image/') && !isHeic(file)) {
           setError('Only image files are allowed')
           continue
         }
