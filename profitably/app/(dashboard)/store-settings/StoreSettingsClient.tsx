@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { convertHeicToJpegIfNeeded } from '@/lib/image-upload'
 
 interface StoreSettings {
   id: string
@@ -103,12 +104,13 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
         throw new Error('Only image files are allowed')
       }
 
-      if (file.size > 5 * 1024 * 1024) {
+      const fileToUpload = await convertHeicToJpegIfNeeded(file)
+      if (fileToUpload.size > 5 * 1024 * 1024) {
         throw new Error('Image must be less than 5MB')
       }
 
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', fileToUpload)
 
       const response = await fetch('/api/upload', {
         method: 'POST',
