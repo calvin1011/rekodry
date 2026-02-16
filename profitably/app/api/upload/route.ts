@@ -3,6 +3,14 @@ import { NextResponse } from 'next/server'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+const HEIC_TYPES = ['image/heic', 'image/heif']
+const HEIC_EXT = /\.(heic|heif)$/i
+
+function isHeic(file: File): boolean {
+  const type = (file.type || '').toLowerCase()
+  if (HEIC_TYPES.includes(type)) return true
+  return HEIC_EXT.test(file.name)
+}
 
 export async function POST(request: Request) {
   try {
@@ -37,24 +45,60 @@ export async function POST(request: Request) {
       jpeg: 'image/jpeg',
       png: 'image/png',
       webp: 'image/webp',
+      heic: 'image/heic',
+      heif: 'image/heif',
     }
     const contentType =
-      ALLOWED_TYPES.includes(file.type) ? file.type : ext ? extToType[ext] : null
+      ALLOWED_TYPES.includes(file.type) || HEIC_TYPES.includes(file.type)
+        ? file.type
+        : ext
+          ? extToType[ext]
+          : null
     if (!contentType) {
       return NextResponse.json(
-        { error: 'File must be JPEG, PNG, or WebP' },
+        { error: 'File must be JPEG, PNG, WebP, or HEIC' },
         { status: 400 }
       )
     }
 
-    const fileExt = ext || 'jpg'
+    let body: Blob | File
+    let uploadContentType: string
+    let fileExt: string
+
+    if (isHeic(file)) {
+      try {
+        const mod = await import('heic-convert')
+        const convert = mod.default ?? mod
+        const inputBuffer = Buffer.from(await file.arrayBuffer())
+        const outputBuffer = await (convert as (opts: { buffer: Buffer; format: 'JPEG' | 'PNG'; quality?: number }) => Promise<Buffer>)({
+          buffer: inputBuffer,
+          format: 'JPEG',
+          quality: 0.92,
+        })
+        body = new Blob([new Uint8Array(outputBuffer)], { type: 'image/jpeg' })
+        uploadContentType = 'image/jpeg'
+        fileExt = 'jpg'
+      } catch (err) {
+        console.error('HEIC conversion failed:', err)
+        return NextResponse.json(
+          { error: 'Could not convert HEIC image. Try saving as JPG first.' },
+          { status: 400 }
+        )
+      }
+    } else {
+      body = file
+      uploadContentType =
+        ALLOWED_TYPES.includes(file.type) ? file.type : extToType[ext!] || 'image/jpeg'
+      fileExt = ext || 'jpg'
+    }
+
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${user.id}/${fileName}`
 
     const { data, error } = await supabase.storage
       .from('product-images')
-      .upload(filePath, file, {
-        contentType,
+      .upload(filePath, body, {
+        contentType: uploadContentType,
         upsert: false,
       })
 

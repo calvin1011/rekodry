@@ -129,8 +129,12 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
         try {
           fileToUpload = await convertHeicToJpegIfNeeded(file)
         } catch {
-          setError('Could not convert image. Try saving as JPG or use a different file.')
-          continue
+          if (isHeic(file)) {
+            fileToUpload = file
+          } else {
+            setError('Could not convert image. Try saving as JPG or use a different file.')
+            continue
+          }
         }
         if (fileToUpload.size > 5 * 1024 * 1024) {
           setError('Image must be less than 5MB')
