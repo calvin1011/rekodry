@@ -141,13 +141,19 @@ export default function WishlistClient({ wishlistItems: initialItems, storeSlug,
                 </h3>
               </Link>
 
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-lg font-bold gradient-text">
-                  {formatCurrency(product.price)}
-                </span>
-                {product.compare_at_price && product.compare_at_price > product.price && (
-                  <span className="text-sm text-slate-500 line-through">
-                    {formatCurrency(product.compare_at_price)}
+              <div className="flex flex-wrap items-baseline gap-2 mb-4">
+                {product.compare_at_price && product.compare_at_price > product.price ? (
+                  <>
+                    <span className="text-slate-500 text-sm line-through">
+                      {formatCurrency(product.compare_at_price)}
+                    </span>
+                    <span className="text-lg font-bold gradient-text">
+                      Now {formatCurrency(product.price)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-lg font-bold gradient-text">
+                    {formatCurrency(product.price)}
                   </span>
                 )}
               </div>

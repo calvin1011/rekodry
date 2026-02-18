@@ -61,6 +61,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
   const [compareAtPrice, setCompareAtPrice] = useState('')
+  const [discountPercent, setDiscountPercent] = useState('')
   const [weightOz, setWeightOz] = useState('')
   const [requiresShipping, setRequiresShipping] = useState(true)
   const [isPublished, setIsPublished] = useState(false)
@@ -76,6 +77,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
       setDescription(productToEdit.description || '')
       setPrice(productToEdit.price.toString())
       setCompareAtPrice(productToEdit.compare_at_price ? productToEdit.compare_at_price.toString() : '')
+      setDiscountPercent('')
       setWeightOz(productToEdit.weight_oz.toString())
       setRequiresShipping(productToEdit.requires_shipping)
       setIsPublished(productToEdit.is_published)
@@ -92,6 +94,7 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
       setDescription('')
       setPrice('')
       setCompareAtPrice('')
+      setDiscountPercent('')
       setWeightOz('8')
       setRequiresShipping(true)
       setIsPublished(false)
@@ -182,6 +185,18 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFileUpload(e.dataTransfer.files)
     }
+  }
+
+  const applyDiscount = () => {
+    const pct = parseFloat(discountPercent)
+    if (Number.isNaN(pct) || pct <= 0 || pct >= 100) return
+    const currentPrice = parseFloat(price)
+    if (Number.isNaN(currentPrice) || currentPrice <= 0) return
+    const original = currentPrice
+    const salePrice = Math.round(original * (1 - pct / 100) * 100) / 100
+    setCompareAtPrice(original.toString())
+    setPrice(salePrice.toString())
+    setDiscountPercent('')
   }
 
   const handleRemoveImage = async (index: number) => {
@@ -421,6 +436,42 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
                     />
                   </div>
                   <p className="text-xs text-slate-500 mt-1">Show original price for sales</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+                <p className="text-sm font-medium text-slate-300 mb-2">Put on sale (discount %)</p>
+                <p className="text-xs text-slate-500 mb-3">
+                  Use current selling price as the original; we&apos;ll set the sale price from the discount.
+                </p>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="1"
+                      max="99"
+                      step="1"
+                      value={discountPercent}
+                      onChange={(e) => setDiscountPercent(e.target.value)}
+                      placeholder="e.g. 50"
+                      className="w-full pl-4 pr-12 py-2.5 bg-slate-800 border border-slate-700 rounded-xl
+                               text-slate-100 placeholder-slate-500
+                               focus:outline-none focus:ring-2 focus:ring-profit-500 focus:border-transparent
+                               transition-smooth"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={applyDiscount}
+                    disabled={!price || !discountPercent || parseFloat(price) <= 0}
+                    className="px-4 py-2.5 rounded-xl font-medium
+                             bg-profit-500/20 text-profit-400 border border-profit-500/50
+                             hover:bg-profit-500/30 transition-smooth
+                             disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Apply % off
+                  </button>
                 </div>
               </div>
 
