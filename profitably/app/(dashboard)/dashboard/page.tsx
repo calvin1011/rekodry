@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import StoreVisitWidget from '@/components/dashboard/StoreVisitWidget'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -70,6 +71,31 @@ export default async function DashboardPage() {
 
   const getPlatformName = (platform: string) => {
     return platform.charAt(0).toUpperCase() + platform.slice(1)
+  }
+
+  // Store visits: fetch store and counts for widget
+  const { data: storeSettings } = await supabase
+    .from('store_settings')
+    .select('store_slug')
+    .eq('user_id', user.id)
+    .single()
+
+  const storeSlug = storeSettings?.store_slug ?? null
+  let visitTodayCount = 0
+  let visitTotalCount = 0
+  if (storeSlug) {
+    const todayUtc = new Date().toISOString().slice(0, 10)
+    const { count: todayCount } = await supabase
+      .from('store_visits')
+      .select('*', { count: 'exact', head: true })
+      .eq('store_slug', storeSlug)
+      .eq('visited_date', todayUtc)
+    const { count: totalCount } = await supabase
+      .from('store_visits')
+      .select('*', { count: 'exact', head: true })
+      .eq('store_slug', storeSlug)
+    visitTodayCount = todayCount ?? 0
+    visitTotalCount = totalCount ?? 0
   }
 
   return (
@@ -206,6 +232,14 @@ export default async function DashboardPage() {
             )}
           </div>
 
+          <div className="space-y-6">
+            {storeSlug && (
+              <StoreVisitWidget
+                storeSlug={storeSlug}
+                todayCount={visitTodayCount}
+                totalCount={visitTotalCount}
+              />
+            )}
           <div className="glass-dark rounded-2xl p-6 animate-slide-up" style={{ animationDelay: '0.5s' }}>
             <h3 className="text-xl font-bold text-slate-100 mb-4">Quick Actions</h3>
             <div className="space-y-3">
@@ -266,6 +300,7 @@ export default async function DashboardPage() {
               <p className="text-2xl font-bold gradient-text mb-1">{formatCurrency(inventoryValue)}</p>
               <p className="text-xs text-slate-500">{totalQuantity} units in stock</p>
             </div>
+          </div>
           </div>
         </div>
 

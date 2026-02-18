@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import ProductGrid from '@/components/storefront/ProductGrid'
+import VisitTracker from '@/components/storefront/VisitTracker'
 
 export default async function StorePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -93,6 +94,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
 
   return (
     <div className="min-h-screen bg-gradient-dark">
+      <VisitTracker storeSlug={slug} />
       {store.banner_url && (
         <div className="w-full h-48 md:h-64 overflow-hidden">
           <img
