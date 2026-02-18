@@ -90,7 +90,10 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
         </div>
 
         {product.compare_at_price && product.compare_at_price > product.price && (
-          <div className="absolute top-2 left-2 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">
+          <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1.5 bg-red-500 text-white text-xs font-semibold rounded shadow-lg">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
             Sale
           </div>
         )}
@@ -113,13 +116,19 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
           </div>
         )}
 
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold gradient-text">
-            {formatCurrency(product.price)}
-          </span>
-          {product.compare_at_price && product.compare_at_price > product.price && (
-            <span className="text-sm text-slate-500 line-through">
-              {formatCurrency(product.compare_at_price)}
+        <div className="flex flex-wrap items-baseline gap-2">
+          {product.compare_at_price && product.compare_at_price > product.price ? (
+            <>
+              <span className="text-slate-500 text-sm line-through">
+                {formatCurrency(product.compare_at_price)}
+              </span>
+              <span className="text-lg font-bold gradient-text">
+                Now {formatCurrency(product.price)}
+              </span>
+            </>
+          ) : (
+            <span className="text-lg font-bold gradient-text">
+              {formatCurrency(product.price)}
             </span>
           )}
         </div>
