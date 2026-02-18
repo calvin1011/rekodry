@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 
 const SESSION_KEY = 'rekodry_product_request_prompted'
+/** Delay (ms) before showing the dialog so visitors can browse first */
+const SHOW_DELAY_MS = 18_000
 
 type FormState = { error?: string; success?: boolean }
 
@@ -16,9 +18,9 @@ export default function ProductRequestDialog({ storeSlug }: { storeSlug: string 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const prompted = sessionStorage.getItem(SESSION_KEY)
-    if (!prompted) {
-      setIsOpen(true)
-    }
+    if (prompted) return
+    const timer = setTimeout(() => setIsOpen(true), SHOW_DELAY_MS)
+    return () => clearTimeout(timer)
   }, [])
 
   function dismiss() {
