@@ -74,10 +74,12 @@ export async function trackOrder(storeSlug: string, prevState: any, formData: Fo
   redirect(`/store/${storeSlug}/orders/${order.id}`)
 }
 
-// Login with email (sends "magic link" OR just sets session)
+// Sign in or sign up with email: creates a customer if none exists (so wishlist etc. work before first order)
 export async function loginWithEmail(storeSlug: string, prevState: any, formData: FormData) {
   const rawEmail = formData.get('email') as string
+  const rawName = formData.get('full_name') as string | null
   const email = rawEmail?.trim().toLowerCase()
+  const fullName = rawName?.trim() || null
   const redirectToRaw = formData.get('redirectTo') as string | null
   const redirectTo = redirectToRaw?.startsWith(`/store/${storeSlug}`)
     ? redirectToRaw
@@ -97,15 +99,30 @@ export async function loginWithEmail(storeSlug: string, prevState: any, formData
 
   if (!store) return { error: 'Store not found' }
 
-  // Check if customer exists
-  const { data: customer } = await supabase
+  const { data: existingCustomer } = await supabase
     .from('customers')
     .select('id, email')
     .ilike('email', email)
     .single()
 
+  let customer = existingCustomer
+
   if (!customer) {
-    return { error: 'No account found with this email. Orders are automatically linked when you checkout.' }
+    const { data: newCustomer, error: createErr } = await supabase
+      .from('customers')
+      .insert({
+        email,
+        full_name: fullName || email.split('@')[0],
+        phone: null,
+      })
+      .select('id, email')
+      .single()
+
+    if (createErr || !newCustomer) {
+      console.error('Error creating customer:', createErr)
+      return { error: 'Could not create account. Please try again.' }
+    }
+    customer = newCustomer
   }
 
   const token = createToken({
