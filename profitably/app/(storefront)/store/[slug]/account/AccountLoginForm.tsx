@@ -26,8 +26,10 @@ export default function AccountLoginForm({
               ← Back to Store
             </Link>
           )}
-          <h1 className="text-2xl font-bold text-slate-100 mb-2">Sign In</h1>
-          <p className="text-slate-400">Access your order history</p>
+          <h1 className="text-2xl font-bold text-slate-100 mb-2">Sign In or Create Account</h1>
+          <p className="text-slate-400">
+            {redirectTo?.includes('wishlist') ? 'Save your wishlist and access order history.' : 'Access your order history and wishlist.'}
+          </p>
         </div>
 
         <form action={action} className="space-y-6">
@@ -49,6 +51,20 @@ export default function AccountLoginForm({
                        placeholder:text-slate-600"
             />
           </div>
+          <div>
+            <label htmlFor="full_name" className="block text-sm font-medium text-slate-300 mb-1">
+              Name <span className="text-slate-500 font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              id="full_name"
+              name="full_name"
+              placeholder="Your name"
+              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-slate-100
+                       focus:ring-2 focus:ring-profit-500 focus:border-transparent outline-none transition-all
+                       placeholder:text-slate-600"
+            />
+          </div>
 
           {state?.error && (
             <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
@@ -64,7 +80,7 @@ export default function AccountLoginForm({
                      disabled:opacity-50 disabled:cursor-not-allowed
                      hover:shadow-profit-900/40"
           >
-            {isPending ? 'Signing In...' : 'Sign In'}
+            {isPending ? 'Continuing...' : 'Continue'}
           </button>
 
           <div className="text-center pt-4 border-t border-slate-800">
@@ -79,7 +95,7 @@ export default function AccountLoginForm({
         </form>
 
         <p className="text-xs text-slate-500 text-center mt-6">
-          Your account is automatically created when you place your first order.
+          New to this store? Enter your email to create an account. No password needed.
         </p>
       </div>
     </div>

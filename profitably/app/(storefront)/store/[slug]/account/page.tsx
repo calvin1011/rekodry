@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
 import { getSession, logout } from '../actions'
 import AccountLoginForm from './AccountLoginForm'
@@ -16,12 +17,20 @@ export default async function AccountPage({
   const { tab, debug } = await searchParams
   const session = await getSession()
 
+  // If they came for wishlist but aren't signed in, show login with redirect to wishlist; if signed in, redirect to wishlist page
+  if (tab === 'wishlist') {
+    if (session?.type === 'customer') {
+      redirect(`/store/${slug}/wishlist`)
+    }
+  }
+
   const defaultTab = session?.type === 'customer' ? 'orders' : 'tracking'
   const requestedTab = tab === 'tracking' ? 'tracking' : 'orders'
-  const activeTab = tab ? requestedTab : defaultTab
+  const activeTab = tab && tab !== 'wishlist' ? requestedTab : defaultTab
 
   const showOrders = activeTab === 'orders'
   const showTracking = activeTab === 'tracking'
+  const showWishlistPrompt = tab === 'wishlist' && session?.type !== 'customer'
 
   let orders: {
     id: string
@@ -221,7 +230,20 @@ export default async function AccountPage({
           </div>
         )}
 
-        {showOrders && (
+        {showWishlistPrompt && (
+          <div className="space-y-4">
+            <div className="glass-dark rounded-2xl border border-slate-800 p-6 text-center mb-4">
+              <p className="text-slate-300 mb-4">Sign in or create an account to view and save your wishlist.</p>
+              <AccountLoginForm
+                storeSlug={slug}
+                compact
+                redirectTo={`/store/${slug}/wishlist`}
+              />
+            </div>
+          </div>
+        )}
+
+        {showOrders && !showWishlistPrompt && (
           <div className="space-y-4">
             {session?.type !== 'customer' && (
               <AccountLoginForm storeSlug={slug} compact />
