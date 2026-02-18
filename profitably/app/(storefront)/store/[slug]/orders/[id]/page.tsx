@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
 import OrderQuickActions from '@/components/storefront/OrderQuickActions'
+import TrackingTimeline from '@/components/storefront/TrackingTimeline'
 import { getSession } from '../../actions'
 
 export default async function OrderDetailPage({
@@ -147,8 +148,8 @@ export default async function OrderDetailPage({
               <div>
                 <p className="text-sm text-slate-400 mb-1">Tracking Number</p>
                 <p className="text-slate-200 font-mono font-medium tracking-wide">{order.tracking_number}</p>
-                {order.carrier && (
-                  <p className="text-xs text-slate-500 mt-1 uppercase">{order.carrier}</p>
+                {order.tracking_carrier && (
+                  <p className="text-xs text-slate-500 mt-1 uppercase">{order.tracking_carrier}</p>
                 )}
               </div>
               {order.tracking_url && (
@@ -162,6 +163,11 @@ export default async function OrderDetailPage({
                 </a>
               )}
             </div>
+            <TrackingTimeline
+              trackingNumber={order.tracking_number}
+              trackingCarrier={order.tracking_carrier}
+              trackingUrl={order.tracking_url}
+            />
           </div>
         )}
 
