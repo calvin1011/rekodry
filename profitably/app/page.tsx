@@ -60,7 +60,7 @@ export default async function HomePage() {
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-slate-400 mb-10 max-w-2xl mx-auto animate-slide-down" style={{ animationDelay: '0.2s' }}>
-            Track inventory, monitor profits, and launch your own branded storefront — all from one powerful dashboard.
+            Track inventory, monitor profits, and launch your own branded storefront, all from one powerful dashboard.
           </p>
 
           {/* CTA Buttons */}
