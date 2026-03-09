@@ -21,7 +21,7 @@ export default function StorefrontHeader({
   return (
     <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile: 3-column grid — hamburger left, store name center, account+cart right */}
+        {/* Mobile: 3-column grid — hamburger left, logo/store name center (Phase 4: larger, front-and-center), account+cart right */}
         <div className="md:hidden grid grid-cols-3 items-center h-16 gap-2">
           <div className="flex justify-start">
             <button
@@ -36,8 +36,21 @@ export default function StorefrontHeader({
             </button>
           </div>
           <div className="flex justify-center min-w-0">
-            <a href={`/store/${slug}`} className="text-xl font-bold text-slate-100 truncate text-center">
-              {store.store_name}
+            <a
+              href={`/store/${slug}`}
+              className="flex flex-col items-center justify-center gap-0.5 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-profit-500 rounded-lg"
+            >
+              {store.logo_url ? (
+                <img
+                  src={store.logo_url}
+                  alt={store.store_name}
+                  className="h-14 w-auto max-h-14 object-contain"
+                />
+              ) : (
+                <span className="text-xl font-bold text-slate-100 truncate max-w-full">
+                  {store.store_name}
+                </span>
+              )}
             </a>
           </div>
           <div className="flex justify-end items-center gap-1">
@@ -54,25 +67,28 @@ export default function StorefrontHeader({
           </div>
         </div>
 
-        {/* Desktop: logo + nav left, account + cart right */}
+        {/* Desktop: larger logo + nav left, account + cart right (Phase 4: logo prominent, green accent) */}
         <div className="hidden md:flex items-center justify-between h-16">
           <div className="flex items-center gap-8 min-w-0">
-            <a href={`/store/${slug}`} className="flex items-center gap-3 shrink-0">
+            <a
+              href={`/store/${slug}`}
+              className="flex items-center gap-3 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-profit-500 text-slate-100 hover:text-profit-400 transition-colors"
+            >
               {store.logo_url && (
                 <img
                   src={store.logo_url}
                   alt={store.store_name}
-                  className="h-10 w-auto object-contain"
+                  className="h-14 w-auto object-contain"
                 />
               )}
-              <span className="text-xl font-bold text-slate-100">
+              <span className="text-xl font-bold">
                 {store.store_name}
               </span>
             </a>
             <nav className="flex items-center gap-6 shrink-0">
               <Link
                 href={`/store/${slug}`}
-                className="text-slate-300 hover:text-slate-100 transition-colors text-sm font-medium"
+                className="text-slate-300 hover:text-profit-400 transition-colors text-sm font-medium"
               >
                 All Products
               </Link>
