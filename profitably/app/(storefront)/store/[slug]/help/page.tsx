@@ -39,7 +39,7 @@ export default async function HelpPage({
         },
         {
           q: 'Can I change my shipping address after ordering?',
-          a: 'Please contact us immediately after placing your order if you need to change your address. Once the package has shipped, we cannot modify the delivery address.',
+          a: 'If your shipping address is wrong, you have about 30 minutes to an hour to request a change—contact us as soon as possible. We ship orders out quickly to get your package to you fast, so once the label is printed we cannot modify the delivery address.',
         },
       ],
     },

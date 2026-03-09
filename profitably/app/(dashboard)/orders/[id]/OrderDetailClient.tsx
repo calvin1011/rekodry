@@ -44,6 +44,7 @@ interface OrderItem {
 interface Order {
   id: string
   order_number: string
+  shipping_address_id: string | null
   subtotal: number
   shipping_cost: number
   tax: number
@@ -80,6 +81,15 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const [trackingUrl, setTrackingUrl] = useState(order.tracking_url || '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isEditingAddress, setIsEditingAddress] = useState(false)
+  const [addressLine1, setAddressLine1] = useState(order.customer_addresses?.address_line1 ?? '')
+  const [addressLine2, setAddressLine2] = useState(order.customer_addresses?.address_line2 ?? '')
+  const [addressCity, setAddressCity] = useState(order.customer_addresses?.city ?? '')
+  const [addressState, setAddressState] = useState(order.customer_addresses?.state ?? '')
+  const [addressPostalCode, setAddressPostalCode] = useState(order.customer_addresses?.postal_code ?? '')
+  const [addressCountry, setAddressCountry] = useState(order.customer_addresses?.country ?? 'US')
+  const [addressLoading, setAddressLoading] = useState(false)
+  const [addressError, setAddressError] = useState<string | null>(null)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -185,6 +195,44 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
       setError(err instanceof Error ? err.message : 'Failed to update tracking')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUpdateAddress = async () => {
+    if (!order.customer_addresses?.id) return
+    setAddressLoading(true)
+    setAddressError(null)
+
+    try {
+      const response = await fetch('/api/orders/address', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: order.id,
+          address_id: order.customer_addresses.id,
+          address_line1: addressLine1.trim(),
+          address_line2: addressLine2.trim() || null,
+          city: addressCity.trim(),
+          state: addressState.trim(),
+          postal_code: addressPostalCode.trim(),
+          country: addressCountry.trim(),
+        }),
+      })
+
+      const data = await response.json().catch(() => ({}))
+      const message = (data && typeof data.error === 'string' ? data.error : null) || (response.status === 401 ? 'Please sign in again.' : response.status === 404 ? 'Order not found.' : 'Failed to update address.')
+
+      if (!response.ok) {
+        throw new Error(message)
+      }
+
+      setIsEditingAddress(false)
+      router.refresh()
+    } catch (err) {
+      setAddressError(err instanceof Error ? err.message : 'Failed to update address')
+    } finally {
+      setAddressLoading(false)
     }
   }
 
@@ -556,19 +604,125 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
 
             {order.customer_addresses && (
               <div className="glass-dark rounded-2xl p-6 animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                <h2 className="text-xl font-bold text-slate-100 mb-6">Shipping Address</h2>
-
-                <div className="text-slate-300 text-sm space-y-1">
-                  <p>{order.customer_addresses.address_line1}</p>
-                  {order.customer_addresses.address_line2 && (
-                    <p>{order.customer_addresses.address_line2}</p>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-slate-100">Shipping Address</h2>
+                  {!isEditingAddress && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingAddress(true)
+                        setAddressLine1(order.customer_addresses?.address_line1 ?? '')
+                        setAddressLine2(order.customer_addresses?.address_line2 ?? '')
+                        setAddressCity(order.customer_addresses?.city ?? '')
+                        setAddressState(order.customer_addresses?.state ?? '')
+                        setAddressPostalCode(order.customer_addresses?.postal_code ?? '')
+                        setAddressCountry(order.customer_addresses?.country ?? 'US')
+                        setAddressError(null)
+                      }}
+                      className="text-profit-400 hover:text-profit-300 text-sm font-medium transition-colors"
+                    >
+                      Edit Address
+                    </button>
                   )}
-                  <p>
-                    {order.customer_addresses.city}, {order.customer_addresses.state}{' '}
-                    {order.customer_addresses.postal_code}
-                  </p>
-                  <p>{order.customer_addresses.country}</p>
                 </div>
+
+                {isEditingAddress ? (
+                  <div className="space-y-4">
+                    {addressError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                        {addressError}
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">Address Line 1</label>
+                      <input
+                        type="text"
+                        value={addressLine1}
+                        onChange={(e) => setAddressLine1(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-400 mb-1">Address Line 2</label>
+                      <input
+                        type="text"
+                        value={addressLine2}
+                        onChange={(e) => setAddressLine2(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">City</label>
+                        <input
+                          type="text"
+                          value={addressCity}
+                          onChange={(e) => setAddressCity(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">State</label>
+                        <input
+                          type="text"
+                          value={addressState}
+                          onChange={(e) => setAddressState(e.target.value)}
+                          maxLength={2}
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">ZIP Code</label>
+                        <input
+                          type="text"
+                          value={addressPostalCode}
+                          onChange={(e) => setAddressPostalCode(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">Country</label>
+                        <input
+                          type="text"
+                          value={addressCountry}
+                          onChange={(e) => setAddressCountry(e.target.value)}
+                          className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingAddress(false)}
+                        className="flex-1 px-4 py-2 rounded-xl font-medium bg-slate-800 text-slate-100 border border-slate-700 hover:bg-slate-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleUpdateAddress}
+                        disabled={addressLoading || !addressLine1.trim() || !addressCity.trim() || !addressState.trim() || !addressPostalCode.trim()}
+                        className="flex-1 px-4 py-2 rounded-xl font-semibold bg-gradient-profit text-white hover:shadow-glow-profit-lg disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+                      >
+                        {addressLoading ? 'Saving...' : 'Save Address'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-slate-300 text-sm space-y-1">
+                    <p>{order.customer_addresses.address_line1}</p>
+                    {order.customer_addresses.address_line2 && (
+                      <p>{order.customer_addresses.address_line2}</p>
+                    )}
+                    <p>
+                      {order.customer_addresses.city}, {order.customer_addresses.state}{' '}
+                      {order.customer_addresses.postal_code}
+                    </p>
+                    <p>{order.customer_addresses.country}</p>
+                  </div>
+                )}
               </div>
             )}
 
