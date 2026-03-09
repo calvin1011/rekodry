@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import { useCart } from '@/lib/cart-context'
 
@@ -159,15 +160,18 @@ export default function WishlistClient({ wishlistItems: initialItems, storeSlug,
               </div>
 
               <div className="flex gap-2">
-                <button
+                <motion.button
+                  type="button"
                   onClick={() => handleAddToCart(item)}
                   disabled={isOutOfStock || isUnavailable}
+                  whileTap={{ scale: 0.93 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                   className="flex-1 px-4 py-2 bg-gradient-profit text-white font-medium rounded-lg
                            hover:shadow-glow-profit-lg transition-smooth
                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   Add to Cart
-                </button>
+                </motion.button>
                 <button
                   onClick={() => handleRemove(item.id, product.id)}
                   disabled={removingId === item.id}
