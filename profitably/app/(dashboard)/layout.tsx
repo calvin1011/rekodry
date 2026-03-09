@@ -1,5 +1,6 @@
 import Sidebar from '@/components/layout/Sidebar'
 import BackToTop from '@/components/layout/BackToTop'
+import OrderNotificationListener from '@/components/dashboard/OrderNotificationListener'
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
         {children}
       </main>
       <BackToTop />
+      <OrderNotificationListener />
     </div>
   )
 }
