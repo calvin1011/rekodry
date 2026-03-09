@@ -41,6 +41,7 @@ interface SuccessClientProps {
 export default function SuccessClient({ storeSlug, storeName, sessionId, order }: SuccessClientProps) {
   const { clearCart } = useCart()
   const [showToast, setShowToast] = useState(true)
+  const [showSuccessModal, setShowSuccessModal] = useState(true)
   const confettiFiredRef = useRef(false)
 
   useEffect(() => {
@@ -65,8 +66,47 @@ export default function SuccessClient({ storeSlug, storeName, sessionId, order }
 
   return (
     <div className="min-h-screen bg-gradient-dark py-10 px-4">
-      {/* Toast Notification */}
-      {showToast && (
+      {/* Phase 5: Prominent checkout-finishing modal/overlay */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            aria-hidden="true"
+            onClick={() => setShowSuccessModal(false)}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl shadow-profit-500/10 p-8 text-center animate-slide-down">
+            <div className="w-20 h-20 bg-profit-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-profit-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 id="success-modal-title" className="text-2xl font-bold text-slate-100 mb-2">
+              Order complete!
+            </h2>
+            <p className="text-slate-400 mb-6">
+              Thank you for your purchase. Your checkout is complete.
+            </p>
+            {order && (
+              <div className="mb-6 rounded-xl bg-slate-800/50 px-4 py-3 text-left">
+                <p className="text-sm text-slate-400">Order #{order.order_number}</p>
+                <p className="text-lg font-bold text-profit-400">{formatCurrency(order.total)}</p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full px-6 py-3 rounded-xl font-semibold bg-gradient-profit text-white
+                       shadow-lg shadow-profit-500/50 hover:shadow-glow-profit-lg
+                       transition-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-profit-400"
+            >
+              View order details
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification (shown after modal is dismissed or if modal was skipped) */}
+      {showToast && !showSuccessModal && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-down">
           <div className="bg-profit-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-profit-500/30 flex items-center gap-3">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
