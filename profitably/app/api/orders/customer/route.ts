@@ -44,7 +44,8 @@ export async function PATCH(request: Request) {
 
     const updatePayload: { full_name?: string; phone?: string | null } = {}
     if (full_name !== undefined) {
-      updatePayload.full_name = String(full_name).trim() || null
+      const trimmed = String(full_name).trim()
+      updatePayload.full_name = trimmed || undefined
     }
     if (phone !== undefined) {
       updatePayload.phone = phone === null || phone === '' ? null : String(phone).trim()
