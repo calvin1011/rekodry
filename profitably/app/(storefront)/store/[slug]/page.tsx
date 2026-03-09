@@ -5,8 +5,15 @@ import { cookies } from 'next/headers'
 import ProductGrid from '@/components/storefront/ProductGrid'
 import VisitTracker from '@/components/storefront/VisitTracker'
 
-export default async function StorePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function StorePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ category?: string }>
+}) {
   const { slug } = await params
+  const { category: categoryParam } = await searchParams
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
@@ -33,7 +40,8 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
       items!inner (
         id,
         name,
-        quantity_on_hand
+        quantity_on_hand,
+        category
       ),
       product_images (
         id,
@@ -90,7 +98,27 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     totalReviews: ratingsMap[product.id]?.count || 0,
   }))
 
-  console.log('Published products after filter:', publishedProducts.length)
+  // Phase 6: derive unique categories from products (from linked item.category)
+  const categories = Array.from(
+    new Set(
+      publishedProducts
+        .map((p) => {
+          const item = Array.isArray(p.items) ? p.items[0] : p.items
+          return (item as { category?: string | null })?.category?.trim() || null
+        })
+        .filter((c): c is string => Boolean(c))
+    )
+  ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+
+  const selectedCategory = categoryParam?.trim() || null
+  const productsToShow =
+    selectedCategory == null
+      ? publishedProducts
+      : publishedProducts.filter((p) => {
+          const item = Array.isArray(p.items) ? p.items[0] : p.items
+          const cat = (item as { category?: string | null })?.category?.trim() || null
+          return cat != null && cat.toLowerCase() === selectedCategory.toLowerCase()
+        })
 
   return (
     <div className="min-h-screen bg-gradient-dark">
@@ -117,7 +145,13 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           )}
         </div>
 
-        <ProductGrid products={publishedProducts} storeSlug={slug} customerId={customerId} />
+        <ProductGrid
+          products={productsToShow}
+          storeSlug={slug}
+          customerId={customerId}
+          categories={categories}
+          selectedCategory={selectedCategory}
+        />
       </div>
     </div>
   )
