@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { Toaster } from 'sonner'
 import './globals.css'
 import React from "react";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
         {children}
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   )
