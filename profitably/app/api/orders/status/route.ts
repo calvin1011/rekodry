@@ -15,7 +15,8 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const { order_id, fulfillment_status } = body
+    const { order_id, fulfillment_status: rawStatus } = body
+    const fulfillment_status = typeof rawStatus === 'string' ? rawStatus.trim().toLowerCase() : ''
 
     if (!order_id || !fulfillment_status) {
       return NextResponse.json(
@@ -27,7 +28,7 @@ export async function PATCH(request: Request) {
     const validStatuses = ['pending', 'shipped', 'delivered', 'fulfilled']
     if (!validStatuses.includes(fulfillment_status)) {
       return NextResponse.json(
-        { error: 'Invalid fulfillment status' },
+        { error: 'Invalid fulfillment status', received: rawStatus },
         { status: 400 }
       )
     }
