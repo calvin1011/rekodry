@@ -69,8 +69,7 @@ export default function StorefrontSidebar() {
   return (
     <div>
       <div className="md:hidden sticky top-16 z-40 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
-        <div className="flex items-center justify-between px-4 h-14">
-          <div className="text-sm uppercase tracking-widest text-slate-500">Account</div>
+        <div className="flex items-center justify-end px-4 h-14">
           <button
             type="button"
             onClick={() => setIsMobileOpen(true)}
@@ -94,8 +93,7 @@ export default function StorefrontSidebar() {
             isMobileOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
-          <div className="flex items-center justify-between p-4 border-b border-slate-800">
-            <div className="text-sm uppercase tracking-widest text-slate-500">Account</div>
+          <div className="flex items-center justify-end p-4 border-b border-slate-800">
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
@@ -129,9 +127,6 @@ export default function StorefrontSidebar() {
 
       <aside className="hidden md:flex md:fixed md:top-16 md:left-0 md:bottom-0 md:w-64 md:border-r md:border-slate-800 md:bg-slate-950">
         <div className="w-full p-6 space-y-4">
-          <div className="text-xs uppercase tracking-widest text-slate-500">
-            Account
-          </div>
           <div className="space-y-2">
             {navItems.map((item) => (
               <Link
