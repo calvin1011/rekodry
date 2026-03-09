@@ -127,19 +127,21 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
     try {
       const response = await fetch('/api/orders/status', {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           order_id: order.id,
-          fulfillment_status: newStatus,
+          fulfillment_status: newStatus?.toLowerCase?.() || newStatus,
         }),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
+      const message = (data && typeof data.error === 'string' ? data.error : null) || (response.status === 401 ? 'Please sign in again.' : response.status === 404 ? 'Order not found.' : 'Failed to update status.')
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update status')
+        throw new Error(message)
       }
 
       setIsEditingStatus(false)
@@ -158,6 +160,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
     try {
       const response = await fetch('/api/orders/tracking', {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -169,10 +172,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
         }),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
+      const message = (data && typeof data.error === 'string' ? data.error : null) || (response.status === 401 ? 'Please sign in again.' : response.status === 404 ? 'Order not found.' : 'Failed to update tracking.')
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update tracking')
+        throw new Error(message)
       }
 
       setIsEditingTracking(false)
