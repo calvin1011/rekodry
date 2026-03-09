@@ -9,10 +9,26 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
 
     const body = await request.json()
-    const { items, store_slug, customer_email } = body
+    const { items, store_slug, customer_email, shipping_address: formShippingAddress } = body
     const normalizedEmail = typeof customer_email === 'string'
       ? customer_email.trim().toLowerCase()
       : null
+
+    // Store form shipping address in metadata so webhook can use it when Stripe doesn't return shipping_details (e.g. billing used by mistake)
+    const shippingAddressMeta =
+      formShippingAddress &&
+      typeof formShippingAddress === 'object' &&
+      (formShippingAddress.line1 || formShippingAddress.address_line1)
+        ? JSON.stringify({
+            line1: formShippingAddress.line1 || formShippingAddress.address_line1 || '',
+            line2: formShippingAddress.line2 || formShippingAddress.address_line2 || null,
+            city: formShippingAddress.city || '',
+            state: formShippingAddress.state || '',
+            postal_code: formShippingAddress.postal_code || formShippingAddress.postalCode || '',
+            country: formShippingAddress.country || 'US',
+            name: formShippingAddress.name || null,
+          })
+        : undefined
 
     if (!items?.length || !store_slug) {
       return NextResponse.json({ error: 'Items and store slug are required' }, { status: 400 })
@@ -101,6 +117,7 @@ export async function POST(request: Request) {
         customer_id: user?.id || '',
         customer_email: normalizedEmail || '',
         items: JSON.stringify(items),
+        ...(shippingAddressMeta ? { shipping_address: shippingAddressMeta } : {}),
       },
     })
 
