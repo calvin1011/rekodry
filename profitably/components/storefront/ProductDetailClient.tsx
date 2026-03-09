@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import ProductCard from './ProductCard'
@@ -259,19 +260,21 @@ export default function ProductDetailClient({
               </div>
             )}
 
-            <button
+            <motion.button
+              type="button"
               onClick={handleAddToCart}
               disabled={isOutOfStock}
+              whileTap={{ scale: 0.93 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               className="w-full px-6 py-4 rounded-xl font-semibold text-lg
                        bg-gradient-profit text-white
                        shadow-lg shadow-profit-500/50
                        hover:shadow-glow-profit-lg hover:scale-[1.02]
-                       active:scale-[0.98]
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-smooth"
             >
               {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-            </button>
+            </motion.button>
 
             {store.return_policy && (
               <details className="mt-6 glass-dark rounded-xl p-4">
