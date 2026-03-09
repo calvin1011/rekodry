@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import CartIcon from '@/components/storefront/CartIcon'
+import StorefrontHeader from '@/components/storefront/StorefrontHeader'
 import StorefrontSidebar from '@/components/storefront/StorefrontSidebar'
 import ProductRequestDialog from '@/components/storefront/ProductRequestDialog'
+import { StorefrontMobileProvider } from '@/components/storefront/StorefrontMobileContext'
 import React from "react";
 
 export default async function StoreLayout({
@@ -28,53 +29,13 @@ export default async function StoreLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      <ProductRequestDialog storeSlug={slug} />
-      <header className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
-              <a href={`/store/${slug}`} className="flex items-center gap-3">
-                {store.logo_url && (
-                  <img
-                    src={store.logo_url}
-                    alt={store.store_name}
-                    className="h-10 w-auto object-contain"
-                  />
-                )}
-                <span className="text-xl font-bold text-slate-100">
-                  {store.store_name}
-                </span>
-              </a>
+    <StorefrontMobileProvider>
+      <div className="min-h-screen bg-slate-950 flex flex-col">
+        <ProductRequestDialog storeSlug={slug} />
+        <StorefrontHeader store={store} slug={slug} />
 
-              <nav className="hidden md:flex items-center gap-6">
-                <Link
-                  href={`/store/${slug}`}
-                  className="text-slate-300 hover:text-slate-100 transition-colors text-sm font-medium"
-                >
-                  All Products
-                </Link>
-              </nav>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Link
-                href={`/store/${slug}/account`}
-                className="p-2 text-slate-300 hover:text-slate-100 transition-colors"
-                aria-label="Account"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
-              <CartIcon />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex-1">
-        <StorefrontSidebar />
+        <div className="flex-1">
+          <StorefrontSidebar />
         <main className="flex-1 md:pl-64">
           {children}
         </main>
@@ -177,6 +138,7 @@ export default async function StoreLayout({
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </StorefrontMobileProvider>
   )
 }

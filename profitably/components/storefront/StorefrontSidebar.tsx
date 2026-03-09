@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useStorefrontMobile } from '@/components/storefront/StorefrontMobileContext'
 
 type NavItem = {
   id: string
@@ -17,7 +17,7 @@ export default function StorefrontSidebar() {
   const searchParams = useSearchParams()
   const storeSlug = params.slug as string
   const activeTab = searchParams.get('tab') || 'orders'
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const { mobileMenuOpen: isMobileOpen, setMobileMenuOpen } = useStorefrontMobile()
 
   const basePath = `/store/${storeSlug}`
   const isAccountPath = pathname.startsWith(`${basePath}/account`)
@@ -68,25 +68,13 @@ export default function StorefrontSidebar() {
 
   return (
     <div>
-      <div className="md:hidden sticky top-16 z-40 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800">
-        <div className="flex items-center justify-end px-4 h-14">
-          <button
-            type="button"
-            onClick={() => setIsMobileOpen(true)}
-            className="px-3 py-1.5 rounded-full text-sm font-medium text-slate-200 border border-slate-700
-                     hover:bg-slate-800 transition-smooth"
-          >
-            Menu
-          </button>
-        </div>
-      </div>
-
+      {/* Mobile overlay + drawer: opened by hamburger in header; no separate Menu bar (Phase 3) */}
       <div className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? '' : 'pointer-events-none'}`}>
         <div
           className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity ${
             isMobileOpen ? 'opacity-100' : 'opacity-0'
           }`}
-          onClick={() => setIsMobileOpen(false)}
+          onClick={() => setMobileMenuOpen(false)}
         />
         <aside
           className={`absolute left-0 top-0 h-full w-72 bg-slate-950 border-r border-slate-800 transform transition-transform ${
@@ -96,7 +84,7 @@ export default function StorefrontSidebar() {
           <div className="flex items-center justify-end p-4 border-b border-slate-800">
             <button
               type="button"
-              onClick={() => setIsMobileOpen(false)}
+              onClick={() => setMobileMenuOpen(false)}
               className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-smooth"
               aria-label="Close menu"
             >
@@ -110,7 +98,7 @@ export default function StorefrontSidebar() {
               <Link
                 key={item.id}
                 href={item.href}
-                onClick={() => setIsMobileOpen(false)}
+                onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   item.isActive
                     ? 'bg-profit-500/15 text-profit-300 border border-profit-500/30'
