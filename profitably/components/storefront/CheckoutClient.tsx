@@ -300,6 +300,10 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
                 </div>
               </div>
 
+              <p className="text-slate-500 text-xs">
+                If your shipping address is wrong, you have about 30 minutes to an hour to request a change. We ship orders out quickly, so contact us right away if you need to update it.
+              </p>
+
               {error && (
                 <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">
                   {error}
