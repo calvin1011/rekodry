@@ -46,17 +46,42 @@ export async function POST(request: Request) {
       const customerEmailRaw = session.customer_details?.email || session.customer_email
       const customerEmail = customerEmailRaw?.trim().toLowerCase()
       
-      // Stripe stores shipping address in different places depending on the checkout mode
-      const shippingAddress = 
-        session.shipping_details?.address || 
-        session.collected_information?.shipping_details?.address ||
-        session.customer_details?.address
-      
-      const shippingName = 
-        session.shipping_details?.name || 
-        session.collected_information?.shipping_details?.name ||
-        session.customer_details?.name ||
-        'Customer'
+      // Use Stripe-collected shipping address only; never use customer_details.address (that is billing from the card).
+      // Fall back to the address the customer entered on our checkout form (stored in metadata).
+      let shippingAddress =
+        session.shipping_details?.address ||
+        session.collected_information?.shipping_details?.address
+
+      if (!shippingAddress?.line1 && metadata.shipping_address) {
+        try {
+          const formAddress = JSON.parse(metadata.shipping_address)
+          if (formAddress?.line1) {
+            shippingAddress = {
+              line1: formAddress.line1,
+              line2: formAddress.line2 || null,
+              city: formAddress.city || '',
+              state: formAddress.state || '',
+              postal_code: formAddress.postal_code || '',
+              country: formAddress.country || 'US',
+            }
+          }
+        } catch (_) {
+          // ignore parse error
+        }
+      }
+
+      let shippingName =
+        session.shipping_details?.name ||
+        session.collected_information?.shipping_details?.name
+      if (!shippingName && metadata.shipping_address) {
+        try {
+          const a = JSON.parse(metadata.shipping_address)
+          shippingName = a.name || 'Customer'
+        } catch {
+          shippingName = 'Customer'
+        }
+      }
+      if (!shippingName) shippingName = 'Customer'
       
       console.log('Shipping Address from Stripe:', JSON.stringify(shippingAddress, null, 2))
 
