@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import confetti from 'canvas-confetti'
 import { useCart } from '@/lib/cart-context'
 import Link from 'next/link'
 
@@ -40,14 +41,20 @@ interface SuccessClientProps {
 export default function SuccessClient({ storeSlug, storeName, sessionId, order }: SuccessClientProps) {
   const { clearCart } = useCart()
   const [showToast, setShowToast] = useState(true)
+  const confettiFiredRef = useRef(false)
 
   useEffect(() => {
     clearCart()
-    
+
+    if (order && !confettiFiredRef.current) {
+      confettiFiredRef.current = true
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } })
+    }
+
     // Hide toast after 5 seconds
     const timer = setTimeout(() => setShowToast(false), 5000)
     return () => clearTimeout(timer)
-  }, [clearCart])
+  }, [clearCart, order])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
