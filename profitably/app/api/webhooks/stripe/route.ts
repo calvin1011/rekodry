@@ -70,18 +70,22 @@ export async function POST(request: Request) {
         }
       }
 
+      // Prefer name from checkout form (metadata) so seller sees real name, not "Customer"
       let shippingName =
+        (metadata.customer_name && String(metadata.customer_name).trim()) ||
+        (() => {
+          try {
+            if (metadata.shipping_address) {
+              const a = JSON.parse(metadata.shipping_address)
+              if (a && a.name && String(a.name).trim()) return String(a.name).trim()
+            }
+          } catch (_) {}
+          return ''
+        })() ||
         session.shipping_details?.name ||
-        session.collected_information?.shipping_details?.name
-      if (!shippingName && metadata.shipping_address) {
-        try {
-          const a = JSON.parse(metadata.shipping_address)
-          shippingName = a.name || 'Customer'
-        } catch {
-          shippingName = 'Customer'
-        }
-      }
-      if (!shippingName) shippingName = 'Customer'
+        session.collected_information?.shipping_details?.name ||
+        ''
+      if (!shippingName || shippingName === 'Customer') shippingName = 'Customer'
       
       console.log('Shipping Address from Stripe:', JSON.stringify(shippingAddress, null, 2))
 
@@ -113,6 +117,13 @@ export async function POST(request: Request) {
 
         if (existingCustomer) {
           customerId = existingCustomer.id
+          // Update existing customer's name when we have a real name from checkout form / Stripe (so "Customer" gets replaced)
+          if (shippingName && shippingName !== 'Customer') {
+            await supabase
+              .from('customers')
+              .update({ full_name: shippingName })
+              .eq('id', existingCustomer.id)
+          }
         } else {
           const { data: newCustomer, error: customerError } = await supabase
             .from('customers')

@@ -90,6 +90,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const [addressCountry, setAddressCountry] = useState(order.customer_addresses?.country ?? 'US')
   const [addressLoading, setAddressLoading] = useState(false)
   const [addressError, setAddressError] = useState<string | null>(null)
+  const [isEditingCustomer, setIsEditingCustomer] = useState(false)
+  const [customerFullName, setCustomerFullName] = useState(order.customers?.full_name ?? '')
+  const [customerPhone, setCustomerPhone] = useState(order.customers?.phone ?? '')
+  const [customerLoading, setCustomerLoading] = useState(false)
+  const [customerError, setCustomerError] = useState<string | null>(null)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -195,6 +200,33 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
       setError(err instanceof Error ? err.message : 'Failed to update tracking')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleUpdateCustomer = async () => {
+    setCustomerLoading(true)
+    setCustomerError(null)
+    try {
+      const response = await fetch('/api/orders/customer', {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: order.id,
+          customer_id: order.customers.id,
+          full_name: customerFullName.trim() || null,
+          phone: customerPhone.trim() || null,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      const message = (data && typeof data.error === 'string' ? data.error : null) || (response.status === 401 ? 'Please sign in again.' : response.status === 404 ? 'Order not found.' : 'Failed to update customer.')
+      if (!response.ok) throw new Error(message)
+      setIsEditingCustomer(false)
+      router.refresh()
+    } catch (err) {
+      setCustomerError(err instanceof Error ? err.message : 'Failed to update customer')
+    } finally {
+      setCustomerLoading(false)
     }
   }
 
@@ -570,36 +602,102 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
 
           <div className="space-y-6">
             <div className="glass-dark rounded-2xl p-6 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <h2 className="text-xl font-bold text-slate-100 mb-6">Customer</h2>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-slate-400 mb-1">Name</p>
-                  <p className="text-slate-100 font-medium">{order.customers.full_name}</p>
-                </div>
-
-                <div>
-                  <p className="text-xs text-slate-400 mb-1">Email</p>
-                  <a
-                    href={`mailto:${order.customers.email}`}
-                    className="text-profit-400 hover:text-profit-300 transition-colors"
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-slate-100">Customer</h2>
+                {!isEditingCustomer && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingCustomer(true)
+                      setCustomerFullName(order.customers?.full_name ?? '')
+                      setCustomerPhone(order.customers?.phone ?? '')
+                      setCustomerError(null)
+                    }}
+                    className="text-profit-400 hover:text-profit-300 text-sm font-medium transition-colors"
                   >
-                    {order.customers.email}
-                  </a>
-                </div>
-
-                {order.customers.phone && (
-                  <div>
-                    <p className="text-xs text-slate-400 mb-1">Phone</p>
-                    <a
-                      href={`tel:${order.customers.phone}`}
-                      className="text-profit-400 hover:text-profit-300 transition-colors"
-                    >
-                      {order.customers.phone}
-                    </a>
-                  </div>
+                    Edit Name / Phone
+                  </button>
                 )}
               </div>
+
+              {isEditingCustomer ? (
+                <div className="space-y-4">
+                  {customerError && (
+                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                      {customerError}
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Full Name</label>
+                    <input
+                      type="text"
+                      value={customerFullName}
+                      onChange={(e) => setCustomerFullName(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                      placeholder="Customer name"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 text-sm"
+                      placeholder="Optional"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500">Email cannot be changed here.</p>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingCustomer(false)}
+                      className="flex-1 px-4 py-2 rounded-xl font-medium bg-slate-800 text-slate-100 border border-slate-700 hover:bg-slate-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleUpdateCustomer}
+                      disabled={customerLoading}
+                      className="flex-1 px-4 py-2 rounded-xl font-semibold bg-gradient-profit text-white hover:shadow-glow-profit-lg disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+                    >
+                      {customerLoading ? 'Saving...' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Name</p>
+                    <p className="text-slate-100 font-medium">{order.customers.full_name || '—'}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Email</p>
+                    <a
+                      href={`mailto:${order.customers.email}`}
+                      className="text-profit-400 hover:text-profit-300 transition-colors"
+                    >
+                      {order.customers.email}
+                    </a>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-400 mb-1">Phone</p>
+                    {order.customers.phone ? (
+                      <a
+                        href={`tel:${order.customers.phone}`}
+                        className="text-profit-400 hover:text-profit-300 transition-colors"
+                      >
+                        {order.customers.phone}
+                      </a>
+                    ) : (
+                      <p className="text-slate-500">—</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {order.customer_addresses && (

@@ -14,6 +14,12 @@ export async function POST(request: Request) {
       ? customer_email.trim().toLowerCase()
       : null
 
+    // Customer name from form so webhook can attach it to the account (seller sees real name, not "Customer")
+    const customerNameFromForm =
+      formShippingAddress && typeof formShippingAddress === 'object' && formShippingAddress.name
+        ? String(formShippingAddress.name).trim()
+        : ''
+
     // Store form shipping address in metadata so webhook can use it when Stripe doesn't return shipping_details (e.g. billing used by mistake)
     const shippingAddressMeta =
       formShippingAddress &&
@@ -118,6 +124,7 @@ export async function POST(request: Request) {
         customer_email: normalizedEmail || '',
         items: JSON.stringify(items),
         ...(shippingAddressMeta ? { shipping_address: shippingAddressMeta } : {}),
+        ...(customerNameFromForm ? { customer_name: customerNameFromForm } : {}),
       },
     })
 
