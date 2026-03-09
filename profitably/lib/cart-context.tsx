@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { addItemToCart, computeSubtotal, computeItemCount } from './cart-utils'
 
 export interface CartItem {
   product_id: string
@@ -47,24 +48,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, mounted])
 
   const addItem = (item: CartItem) => {
-    setItems((current) => {
-      const existing = current.find((i) => i.product_id === item.product_id)
-
-      if (existing) {
-        const newQuantity = Math.min(
-          existing.quantity + item.quantity,
-          item.max_quantity
-        )
-
-        return current.map((i) =>
-          i.product_id === item.product_id
-            ? { ...i, quantity: newQuantity }
-            : i
-        )
-      }
-
-      return [...current, item]
-    })
+    setItems((current) => addItemToCart(current, item))
   }
 
   const removeItem = (product_id: string) => {
@@ -94,9 +78,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([])
   }
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const subtotal = computeSubtotal(items)
   const total = subtotal
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const itemCount = computeItemCount(items)
 
   return (
     <CartContext.Provider
