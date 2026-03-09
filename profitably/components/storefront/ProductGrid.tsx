@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import ProductCard from './ProductCard'
 
 type Item = {
   id: string
   name: string
   quantity_on_hand: number
+  category?: string | null
 }
 
 type Product = {
@@ -31,26 +33,62 @@ interface ProductGridProps {
   products: Product[]
   storeSlug: string
   customerId?: string | null
+  categories?: string[]
+  selectedCategory?: string | null
 }
 
-export default function ProductGrid({ products, storeSlug, customerId }: ProductGridProps) {
+function getItemCategory(product: Product): string | null {
+  const item = Array.isArray(product.items) ? product.items[0] : product.items
+  return (item as Item)?.category?.trim() || null
+}
+
+export default function ProductGrid({ products, storeSlug, customerId, categories = [], selectedCategory = null }: ProductGridProps) {
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) {
       return products
     }
-
     const query = searchQuery.toLowerCase().trim()
     return products.filter((product) => {
       const titleMatch = product.title.toLowerCase().includes(query)
       const descMatch = product.description?.toLowerCase().includes(query)
-      return titleMatch || descMatch
+      const categoryMatch = getItemCategory(product)?.toLowerCase().includes(query)
+      return titleMatch || descMatch || categoryMatch === true
     })
   }, [products, searchQuery])
 
   return (
     <div>
+      {/* Phase 6: Category filter pills */}
+      {categories.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center justify-center gap-2">
+          <Link
+            href={`/store/${storeSlug}`}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition-smooth ${
+              selectedCategory == null
+                ? 'bg-profit-500/20 text-profit-400 border border-profit-500/40'
+                : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700/50 hover:text-slate-300'
+            }`}
+          >
+            All
+          </Link>
+          {categories.map((cat) => (
+            <Link
+              key={cat}
+              href={`/store/${storeSlug}?category=${encodeURIComponent(cat)}`}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-smooth ${
+                selectedCategory != null && selectedCategory.toLowerCase() === cat.toLowerCase()
+                  ? 'bg-profit-500/20 text-profit-400 border border-profit-500/40'
+                  : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700/50 hover:text-slate-300'
+              }`}
+            >
+              {cat}
+            </Link>
+          ))}
+        </div>
+      )}
+
       {/* Search Bar */}
       <div className="mb-8 max-w-xl mx-auto">
         <div className="relative">

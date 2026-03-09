@@ -32,7 +32,13 @@ export default function InventoryClient({ initialItems }: InventoryClientProps) 
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [itemToEdit, setItemToEdit] = useState<Item | undefined>(undefined)
+
+  // Phase 6: unique categories from items for filter dropdown
+  const categories = Array.from(
+    new Set(initialItems.map((i) => i.category?.trim()).filter((c): c is string => Boolean(c)))
+  ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 
   const handleEdit = (item: Item) => {
     setItemToEdit(item)
@@ -57,12 +63,17 @@ export default function InventoryClient({ initialItems }: InventoryClientProps) 
     setItemToEdit(undefined)
   }
 
-  // filter items based on search
-  const filteredItems = initialItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.purchase_location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
+  // filter items based on search and category
+  const filteredItems = initialItems.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.purchase_location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.category && item.category.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesCategory =
+      !categoryFilter ||
+      (item.category?.trim() && item.category.trim().toLowerCase() === categoryFilter.toLowerCase())
+    return matchesSearch && matchesCategory
+  })
 
   return (
     <div className="min-h-screen bg-gradient-dark p-4 md:p-8">
@@ -92,6 +103,24 @@ export default function InventoryClient({ initialItems }: InventoryClientProps) 
                        transition-smooth"
             />
           </div>
+
+          {categories.length > 0 && (
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl
+                       text-slate-100 min-w-[10rem]
+                       focus:outline-none focus:ring-2 focus:ring-profit-500 focus:border-transparent
+                       transition-smooth"
+            >
+              <option value="">All categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          )}
 
           <button
             onClick={() => setIsModalOpen(true)}
