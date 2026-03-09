@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import AddItemModal from './AddItemModal'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
@@ -240,13 +241,21 @@ export default function InventoryClient({ initialItems }: InventoryClientProps) 
                   </div>
                 </div>
 
-                {item.quantity_on_hand === 0 && (
-                  <div className="mt-3 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/50 text-red-400 text-xs text-center">
-                    Out of Stock
-                  </div>
-                )}
-                {item.quantity_on_hand > 0 && item.quantity_on_hand <= 2 && (
-                  <div className="mt-3 px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-400 text-xs text-center">
+                <AnimatePresence>
+                  {item.quantity_on_hand === 0 && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="mt-3 px-3 py-1 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 text-xs text-center ring-2 ring-red-400"
+                    >
+                      SOLD OUT
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {item.quantity_on_hand > 0 && item.quantity_on_hand <= 3 && (
+                  <div className="mt-3 px-3 py-1 rounded-lg bg-red-500/20 text-red-400 text-xs text-center animate-pulse ring-2 ring-red-400">
                     Low Stock
                   </div>
                 )}
