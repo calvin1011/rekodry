@@ -18,7 +18,9 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.90.1",
     "autoprefixer": "^10.4.23",
+    "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.35.2",
     "heic-convert": "^2.1.0",
     "heic2any": "^0.0.4",
     "next": "^16.1.6",
@@ -29,8 +31,10 @@
     "react-hook-form": "^7.71.0",
     "recharts": "^3.6.0",
     "resend": "^6.8.0",
+    "sonner": "^2.0.7",
     "stripe": "^20.2.0",
     "tailwind-merge": "^3.4.0",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^4.3.5"
   },
   "devDependencies": {
