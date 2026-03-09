@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import WishlistButton from './WishlistButton'
 import StarRating from './StarRating'
@@ -41,7 +42,7 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
   const mainImage = product.product_images.find((img) => img.position === 0) || product.product_images[0]
   const itemData = Array.isArray(product.items) ? product.items[0] : product.items
   const isOutOfStock = !itemData || itemData.quantity_on_hand === 0
-  const isLowStock = itemData && itemData.quantity_on_hand > 0 && itemData.quantity_on_hand <= 5
+  const isLowStock = itemData && itemData.quantity_on_hand > 0 && itemData.quantity_on_hand <= 3
 
   return (
     <Link
@@ -64,16 +65,24 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
           </div>
         )}
 
-        {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-            <span className="px-4 py-2 bg-slate-900 text-slate-100 font-semibold rounded-lg">
-              Out of Stock
-            </span>
-          </div>
-        )}
+        <AnimatePresence>
+          {isOutOfStock && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="absolute inset-0 bg-black/60 flex items-center justify-center"
+            >
+              <span className="px-4 py-2 bg-slate-900 text-slate-100 font-semibold rounded-lg ring-2 ring-red-400">
+                SOLD OUT
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {isLowStock && !isOutOfStock && (
-          <div className="absolute top-2 right-2 px-2 py-1 bg-amber-500 text-white text-xs font-semibold rounded">
+          <div className="absolute top-2 right-2 px-2 py-1 bg-red-500/20 text-red-400 text-xs font-semibold rounded animate-pulse ring-2 ring-red-400">
             Only {itemData?.quantity_on_hand} left
           </div>
         )}
