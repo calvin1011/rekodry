@@ -19,17 +19,18 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
   return (
     <div className="fixed inset-0 z-[9999] overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
-        {/* Backdrop - darker and blurrier for better focus */}
+        {/* Cover-style overlay: solid dark cover over the page */}
         <div
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in"
+          className="absolute inset-0 bg-slate-950/90 transition-opacity animate-fade-in"
           onClick={onClose}
+          aria-hidden
         />
 
         <div className="fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-16 pointer-events-none">
           <div className="w-screen max-w-md pointer-events-auto transform transition-transform animate-slide-up sm:animate-none">
 
-            {/* Glass effect container matching your global theme */}
-            <div className="flex h-full flex-col bg-slate-950/95 backdrop-blur-xl shadow-2xl border-l border-slate-800">
+            {/* Solid panel (100% opacity) - Phase 1 */}
+            <div className="flex h-full flex-col bg-slate-950 shadow-2xl border-l border-slate-800">
 
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800/70">
@@ -132,7 +133,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
 
               {/* Footer */}
               {items.length > 0 && (
-                <div className="flex-shrink-0 border-t border-slate-800 p-6 bg-slate-950/80 backdrop-blur-md">
+                <div className="flex-shrink-0 border-t border-slate-800 p-6 bg-slate-950">
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm text-slate-400">
                       <span>Subtotal</span>
