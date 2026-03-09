@@ -1,5 +1,6 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
@@ -156,16 +157,22 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                   </div>
 
                   <div className="space-y-3">
-                    <Link
-                      href={`/store/${storeSlug}/checkout`}
-                      onClick={onClose}
-                      className="block w-full py-4 rounded-xl font-bold text-center text-white
-                               bg-gradient-profit shadow-lg shadow-profit-500/25
-                               hover:shadow-profit-500/40 hover:scale-[1.01] active:scale-[0.99]
-                               transition-all duration-200"
+                    <motion.div
+                      whileTap={{ scale: 0.93 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                      className="block w-full"
                     >
-                      Checkout
-                    </Link>
+                      <Link
+                        href={`/store/${storeSlug}/checkout`}
+                        onClick={onClose}
+                        className="block w-full py-4 rounded-xl font-bold text-center text-white
+                                 bg-gradient-profit shadow-lg shadow-profit-500/25
+                                 hover:shadow-profit-500/40 hover:scale-[1.01]
+                                 transition-all duration-200"
+                      >
+                        Checkout
+                      </Link>
+                    </motion.div>
 
                     <Link
                       href={`/store/${storeSlug}`}

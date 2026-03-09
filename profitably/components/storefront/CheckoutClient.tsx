@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import { loadStripe } from '@stripe/stripe-js';
@@ -305,19 +306,20 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
                 </div>
               )}
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={loading}
+                whileTap={{ scale: 0.93 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 className="w-full px-6 py-4 rounded-xl font-semibold text-lg
                          bg-gradient-profit text-white
                          shadow-lg shadow-profit-500/50
                          hover:shadow-glow-profit-lg hover:scale-[1.02]
-                         active:scale-[0.98]
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-smooth"
               >
                 {loading ? 'Processing...' : `Pay ${formatCurrency(total)}`}
-              </button>
+              </motion.button>
             </form>
           </div>
 
