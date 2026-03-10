@@ -1,17 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { createShipmentAndGetRates, isShippoConfigured } from '@/lib/shippo'
+import { createShipmentAndGetRates, isEasyPostConfigured } from '@/lib/easypost'
 
 /**
  * POST /api/orders/shipping/rates
  * Body: { order_id: string, weight_lb?: number, length_in?: number, width_in?: number, height_in?: number }
- * Returns Shippo rates for the order. Requires Shippo to be configured (SHIPPO_API_KEY).
+ * Returns EasyPost rates for the order. Requires EasyPost to be configured (EASYPOST_API_KEY).
  */
 export async function POST(request: Request) {
   try {
-    if (!isShippoConfigured()) {
+    if (!isEasyPostConfigured()) {
       return NextResponse.json(
-        { error: 'Shipping labels are not configured. Set SHIPPO_API_KEY in your environment.' },
+        { error: 'Shipping labels are not configured. Set EASYPOST_API_KEY in your environment.' },
         { status: 503 }
       )
     }
@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       tracking_url: r.tracking_url,
     }))
 
-    return NextResponse.json({ rates, shipment_id: shipment.object_id })
+    return NextResponse.json({ rates, shipment_id: shipment.id })
   } catch (err) {
     console.error('Shipping rates error:', err)
     return NextResponse.json(

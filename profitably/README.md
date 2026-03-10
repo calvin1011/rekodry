@@ -24,7 +24,8 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 To create and print shipping labels from the dashboard (USPS, UPS, FedEx, DHL, etc.):
 
-- **`SHIPPO_API_KEY`** – Your [Shippo](https://goshippo.com/) API token (get it in Shippo dashboard → API). Use the test token for development; live token for production. If unset, the “Create shipping label” option is disabled and you can still add tracking manually.
+- **`EASYPOST_API_KEY`** – Your [EasyPost](https://www.easypost.com/) API key (Account → API Keys). Use the test key for development; live key for production. Powers both **shipping labels** (rates + purchase) and **storefront tracking** (status + checkpoints). If unset, the “Create shipping label” option is disabled and you can still add tracking manually.
+- **`AFTERSHIP_API_KEY`** – Optional. Only used for storefront “Track order” when `EASYPOST_API_KEY` is not set. If you use EasyPost for labels, set `EASYPOST_API_KEY` and you can leave this unset to avoid paying for AfterShip.
 
 ## Learn More
 
