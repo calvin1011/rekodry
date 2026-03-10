@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
@@ -18,7 +18,7 @@ export default async function OrderDetailPage({
     redirect(`/store/${slug}/account?tab=tracking`)
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: order, error } = await supabase
     .from('orders')
