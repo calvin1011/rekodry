@@ -4,6 +4,7 @@ import Link from 'next/link'
 import StorefrontHeader from '@/components/storefront/StorefrontHeader'
 import StorefrontSidebar from '@/components/storefront/StorefrontSidebar'
 import ProductRequestDialog from '@/components/storefront/ProductRequestDialog'
+import CartStoreSlugSync from '@/components/storefront/CartStoreSlugSync'
 import { StorefrontMobileProvider } from '@/components/storefront/StorefrontMobileContext'
 import React from "react";
 
@@ -30,6 +31,7 @@ export default async function StoreLayout({
 
   return (
     <StorefrontMobileProvider>
+      <CartStoreSlugSync storeSlug={slug} />
       <div className="min-h-screen bg-slate-950 flex flex-col">
         <ProductRequestDialog storeSlug={slug} />
         <StorefrontHeader store={store} slug={slug} />
