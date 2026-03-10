@@ -20,6 +20,12 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment variables (shipping labels)
+
+To create and print shipping labels from the dashboard (USPS, UPS, FedEx, DHL, etc.):
+
+- **`SHIPPO_API_KEY`** – Your [Shippo](https://goshippo.com/) API token (get it in Shippo dashboard → API). Use the test token for development; live token for production. If unset, the “Create shipping label” option is disabled and you can still add tracking manually.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
