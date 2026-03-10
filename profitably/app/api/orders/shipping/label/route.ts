@@ -1,19 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { purchaseLabel, isShippoConfigured } from '@/lib/shippo'
+import { purchaseLabel, isEasyPostConfigured } from '@/lib/easypost'
 import { resend, resendTrackingFromEmail } from '@/lib/resend'
 import { getShippingNotificationEmailHtml } from '@/lib/email-templates'
 
 /**
  * POST /api/orders/shipping/label
- * Body: { order_id: string, rate_object_id: string }
- * Purchases a Shippo label for the selected rate, updates the order with tracking, and sends shipping email.
+ * Body: { order_id: string, rate_object_id: string, shipment_id: string }
+ * Purchases an EasyPost label for the selected rate, updates the order with tracking, and sends shipping email.
  */
 export async function POST(request: Request) {
   try {
-    if (!isShippoConfigured()) {
+    if (!isEasyPostConfigured()) {
       return NextResponse.json(
-        { error: 'Shipping labels are not configured. Set SHIPPO_API_KEY in your environment.' },
+        { error: 'Shipping labels are not configured. Set EASYPOST_API_KEY in your environment.' },
         { status: 503 }
       )
     }
@@ -31,10 +31,11 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}))
     const orderId = body?.order_id
     const rateObjectId = body?.rate_object_id
+    const shipmentId = body?.shipment_id
 
-    if (!orderId || !rateObjectId) {
+    if (!orderId || !rateObjectId || !shipmentId) {
       return NextResponse.json(
-        { error: 'order_id and rate_object_id are required' },
+        { error: 'order_id, rate_object_id, and shipment_id are required' },
         { status: 400 }
       )
     }
@@ -66,7 +67,8 @@ export async function POST(request: Request) {
     const customer = Array.isArray(raw.customers) ? raw.customers[0] : raw.customers
 
     const { transaction, error } = await purchaseLabel({
-      rateObjectId,
+      shipmentId,
+      rateId: rateObjectId,
       labelFileType: 'PDF',
     })
 

@@ -96,10 +96,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const [customerLoading, setCustomerLoading] = useState(false)
   const [customerError, setCustomerError] = useState<string | null>(null)
   const [shippingRates, setShippingRates] = useState<Array<{ object_id: string; amount: string; currency: string; provider: string; servicelevel: { name: string }; estimated_days: number | null; tracking_url?: string | null }>>([])
+  const [shipmentId, setShipmentId] = useState<string | null>(null)
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null)
   const [loadingRates, setLoadingRates] = useState(false)
   const [loadingLabel, setLoadingLabel] = useState(false)
-  const [shippoError, setShippoError] = useState<string | null>(null)
+  const [shippingError, setShippingError] = useState<string | null>(null)
   const [refundLoading, setRefundLoading] = useState(false)
   const [refundError, setRefundError] = useState<string | null>(null)
 
@@ -178,10 +179,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
     }
   }
 
-  const handleGetShippoRates = async () => {
+  const handleGetShippingRates = async () => {
     setLoadingRates(true)
-    setShippoError(null)
+    setShippingError(null)
     setShippingRates([])
+    setShipmentId(null)
     setSelectedRateId(null)
     try {
       const res = await fetch('/api/orders/shipping/rates', {
@@ -192,32 +194,37 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setShippoError(data?.error || 'Failed to get rates')
+        setShippingError(data?.error || 'Failed to get rates')
         return
       }
       setShippingRates(data?.rates || [])
+      if (data?.shipment_id) setShipmentId(data.shipment_id)
       if (data?.rates?.length) setSelectedRateId(data.rates[0].object_id)
     } catch (e) {
-      setShippoError('Failed to load shipping rates')
+      setShippingError('Failed to load shipping rates')
     } finally {
       setLoadingRates(false)
     }
   }
 
-  const handlePurchaseShippoLabel = async () => {
-    if (!selectedRateId) return
+  const handlePurchaseLabel = async () => {
+    if (!selectedRateId || !shipmentId) return
     setLoadingLabel(true)
-    setShippoError(null)
+    setShippingError(null)
     try {
       const res = await fetch('/api/orders/shipping/label', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: order.id, rate_object_id: selectedRateId }),
+        body: JSON.stringify({
+          order_id: order.id,
+          rate_object_id: selectedRateId,
+          shipment_id: shipmentId,
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        setShippoError(data?.error || 'Failed to purchase label')
+        setShippingError(data?.error || 'Failed to purchase label')
         return
       }
       if (data?.label_url) {
@@ -225,7 +232,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
       }
       router.refresh()
     } catch (e) {
-      setShippoError('Failed to purchase label')
+      setShippingError('Failed to purchase label')
     } finally {
       setLoadingLabel(false)
     }
@@ -584,15 +591,15 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                 <p className="text-slate-400 text-sm mb-4">
                   Get rates from USPS, UPS, FedEx, and more. Purchase a label and we&apos;ll update tracking and notify the customer.
                 </p>
-                {shippoError && (
+                {shippingError && (
                   <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm">
-                    {shippoError}
+                    {shippingError}
                   </div>
                 )}
                 {shippingRates.length === 0 ? (
                   <button
                     type="button"
-                    onClick={handleGetShippoRates}
+                    onClick={handleGetShippingRates}
                     disabled={loadingRates}
                     className="px-4 py-2 rounded-xl font-semibold bg-profit-600 text-white hover:bg-profit-500 disabled:opacity-50 transition-colors"
                   >
@@ -607,7 +614,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                           <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-700 hover:bg-slate-800/50 cursor-pointer">
                             <input
                               type="radio"
-                              name="shippo-rate"
+                              name="shipping-rate"
                               checked={selectedRateId === rate.object_id}
                               onChange={() => setSelectedRateId(rate.object_id)}
                               className="text-profit-500"
@@ -627,15 +634,15 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                     <div className="flex gap-3">
                       <button
                         type="button"
-                        onClick={() => { setShippingRates([]); setSelectedRateId(null); setShippoError(null); }}
+                        onClick={() => { setShippingRates([]); setShipmentId(null); setSelectedRateId(null); setShippingError(null); }}
                         className="px-4 py-2 rounded-xl font-medium bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700"
                       >
                         Back
                       </button>
                       <button
                         type="button"
-                        onClick={handlePurchaseShippoLabel}
-                        disabled={loadingLabel || !selectedRateId}
+                        onClick={handlePurchaseLabel}
+                        disabled={loadingLabel || !selectedRateId || !shipmentId}
                         className="px-4 py-2 rounded-xl font-semibold bg-gradient-profit text-white shadow-lg shadow-profit-500/30 hover:shadow-glow-profit disabled:opacity-50"
                       >
                         {loadingLabel ? 'Purchasing…' : 'Purchase label & print'}
