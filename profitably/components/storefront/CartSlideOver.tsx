@@ -17,23 +17,25 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-[9999] overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Overlay */}
-        <div
-          className="absolute inset-0 bg-slate-950/90 transition-opacity animate-fade-in"
-          onClick={onClose}
-          aria-hidden
-        />
+    <div
+      className="fixed inset-0 z-[9999] overflow-hidden sm:inset-auto"
+      style={{ height: '100dvh', maxHeight: '100dvh' } as React.CSSProperties}
+    >
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-slate-950/90 animate-fade-in"
+        onClick={onClose}
+        aria-hidden
+      />
 
-        {/* Panel: full-screen on mobile, right drawer on desktop */}
-        <div className="fixed inset-0 sm:inset-y-0 sm:right-0 sm:left-auto flex max-w-full sm:pl-16 pointer-events-none">
-          <div
-            className="w-full sm:w-screen sm:max-w-md pointer-events-auto transform transition-transform animate-slide-up sm:animate-none flex flex-col bg-slate-950 shadow-2xl border-l border-slate-800 min-h-full sm:min-h-0 sm:h-full"
-            style={{ minHeight: '100dvh' }}
-          >
-            {/* Header - always visible */}
-            <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-800/70 bg-slate-950">
+      {/* Panel: full-screen on mobile, right drawer on desktop */}
+      <div
+        className="fixed inset-0 flex max-w-full sm:inset-y-0 sm:right-0 sm:left-auto sm:pl-16 pointer-events-none"
+        style={{ height: '100dvh', maxHeight: '100dvh' } as React.CSSProperties}
+      >
+        <div className="w-full h-[100dvh] max-h-[100dvh] min-h-0 sm:h-full sm:max-h-full sm:w-screen sm:max-w-md pointer-events-auto flex flex-col bg-slate-950 shadow-2xl border-l border-slate-800 animate-slide-up sm:animate-none overflow-hidden">
+          {/* Header - always visible */}
+          <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-slate-800/70 bg-slate-950">
               <h2 className="text-lg sm:text-xl font-bold text-slate-100">
                 Your Cart
                 <span className="text-slate-400 font-normal ml-2">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
@@ -49,10 +51,10 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
               </button>
             </div>
 
-            {/* Cart content: scrollable list + sticky footer on mobile */}
-            <div className="flex-1 flex flex-col min-h-0">
+            {/* Cart content: scrollable list + sticky footer; flex-1 min-h-0 so footer stays visible */}
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
               {items.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-8 space-y-4">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-8 space-y-4 min-h-0">
                   <div className="w-20 h-20 rounded-2xl bg-slate-800/60 flex items-center justify-center">
                     <svg className="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -72,8 +74,11 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                 </div>
               ) : (
                 <>
-                  {/* Scrollable cart items */}
-                  <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 py-4">
+                  {/* Scrollable cart items - overflow-y-auto with touch scroll for mobile */}
+                  <div
+                    className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 py-4 overscroll-contain"
+                    style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+                  >
                     <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">Cart items</p>
                     <ul className="divide-y divide-slate-800/60">
                       {items.map((item) => (
@@ -133,7 +138,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                   </div>
 
                   {/* Sticky footer: always visible on mobile so Checkout is never hidden */}
-                  <div className="flex-shrink-0 border-t border-slate-800 p-4 sm:p-6 bg-slate-950 pb-[env(safe-area-inset-bottom)] sm:pb-6">
+                  <div className="flex-shrink-0 border-t border-slate-800 p-4 sm:p-6 bg-slate-950 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-6">
                     <div className="space-y-3 mb-4 sm:mb-6">
                       <div className="flex justify-between text-sm text-slate-400">
                         <span>Subtotal</span>
