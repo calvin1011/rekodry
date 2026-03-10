@@ -29,6 +29,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object as { id?: string; payment_intent?: string }
+    const paymentIntentId = charge?.payment_intent
+    if (!paymentIntentId) {
+      return NextResponse.json({ received: true })
+    }
+    try {
+      const supabase = createAdminClient()
+      const { data: order } = await supabase
+        .from('orders')
+        .select('id, payment_status')
+        .eq('stripe_payment_intent_id', paymentIntentId)
+        .single()
+      if (order && order.payment_status !== 'refunded') {
+        await supabase
+          .from('orders')
+          .update({ payment_status: 'refund_pending' })
+          .eq('id', order.id)
+      }
+    } catch (err) {
+      console.error('charge.refunded webhook error:', err)
+    }
+    return NextResponse.json({ received: true })
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any
 

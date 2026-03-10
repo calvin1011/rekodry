@@ -97,6 +97,8 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
         return 'bg-profit-500/20 text-profit-400 border-profit-500/30'
       case 'pending':
         return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+      case 'refund_pending':
+        return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
       case 'cancelled':
         return 'bg-red-500/20 text-red-400 border-red-500/30'
       case 'refunded':
@@ -122,6 +124,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
   }
 
   const getStatusLabel = (status: string) => {
+    if (status === 'refund_pending') return 'Refund pending'
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
@@ -190,6 +193,7 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
             <option value="all">All Payments</option>
             <option value="paid">Paid</option>
             <option value="pending">Pending</option>
+            <option value="refund_pending">Refund pending</option>
             <option value="cancelled">Cancelled</option>
             <option value="refunded">Refunded</option>
           </select>

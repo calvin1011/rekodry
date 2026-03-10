@@ -100,12 +100,16 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const [loadingRates, setLoadingRates] = useState(false)
   const [loadingLabel, setLoadingLabel] = useState(false)
   const [shippoError, setShippoError] = useState<string | null>(null)
+  const [refundLoading, setRefundLoading] = useState(false)
+  const [refundError, setRefundError] = useState<string | null>(null)
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
         return 'bg-profit-500/20 text-profit-400 border-profit-500/30'
       case 'pending':
+        return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+      case 'refund_pending':
         return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
       case 'cancelled':
         return 'bg-red-500/20 text-red-400 border-red-500/30'
@@ -132,6 +136,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   }
 
   const getStatusLabel = (status: string) => {
+    if (status === 'refund_pending') return 'Refund pending'
     return status.charAt(0).toUpperCase() + status.slice(1)
   }
 
@@ -326,6 +331,52 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
     }
   }
 
+  const handleIssueRefund = async () => {
+    setRefundLoading(true)
+    setRefundError(null)
+    try {
+      const res = await fetch('/api/orders/refund', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: order.id }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setRefundError(data?.error || 'Failed to create refund')
+        return
+      }
+      router.refresh()
+    } catch (e) {
+      setRefundError('Failed to create refund')
+    } finally {
+      setRefundLoading(false)
+    }
+  }
+
+  const handleResolveRefund = async (resolution: 'damaged' | 'restock') => {
+    setRefundLoading(true)
+    setRefundError(null)
+    try {
+      const res = await fetch('/api/orders/refund/resolve', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: order.id, resolution }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setRefundError(data?.error || 'Failed to resolve refund')
+        return
+      }
+      router.refresh()
+    } catch (e) {
+      setRefundError('Failed to resolve refund')
+    } finally {
+      setRefundLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-dark p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -359,9 +410,9 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
           </div>
         </div>
 
-        {error && (
+        {(error || refundError) && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm animate-fade-in">
-            {error}
+            {refundError || error}
           </div>
         )}
 
@@ -960,6 +1011,43 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                     {getStatusLabel(order.payment_status)}
                   </span>
                 </div>
+
+                {order.payment_status === 'paid' && (
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={handleIssueRefund}
+                      disabled={refundLoading}
+                      className="px-4 py-2 rounded-xl font-medium bg-amber-600 text-white hover:bg-amber-500 disabled:opacity-50 transition-colors"
+                    >
+                      {refundLoading ? 'Processing…' : 'Issue refund'}
+                    </button>
+                  </div>
+                )}
+
+                {order.payment_status === 'refund_pending' && (
+                  <div className="pt-2 space-y-2">
+                    <p className="text-slate-400 text-sm">Refund pending – resolve after reviewing the item:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleResolveRefund('damaged')}
+                        disabled={refundLoading}
+                        className="px-4 py-2 rounded-xl font-medium bg-slate-700 text-slate-200 hover:bg-slate-600 disabled:opacity-50 transition-colors"
+                      >
+                        Mark damaged (do not restock)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleResolveRefund('restock')}
+                        disabled={refundLoading}
+                        className="px-4 py-2 rounded-xl font-medium bg-profit-600 text-white hover:bg-profit-500 disabled:opacity-50 transition-colors"
+                      >
+                        Mark good (restock inventory)
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {order.paid_at && (
                   <div className="flex justify-between">
