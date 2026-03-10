@@ -65,7 +65,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                     <p className="text-slate-400 text-sm">Add items to get started.</p>
                   </div>
                   <Link
-                    href={`/store/${storeSlug}`}
+                    href={'/store/' + storeSlug}
                     onClick={onClose}
                     className="mt-4 px-6 py-3 rounded-xl text-sm font-medium text-white bg-profit-600 hover:bg-profit-500 transition-colors inline-block"
                   >
@@ -164,7 +164,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                         className="block w-full"
                       >
                         <Link
-                          href={`/store/${storeSlug}/checkout`}
+                          href={'/store/' + storeSlug + '/checkout'}
                           onClick={onClose}
                           className="block w-full py-4 rounded-xl font-bold text-center text-white bg-gradient-profit shadow-lg shadow-profit-500/25 hover:shadow-profit-500/40 active:scale-[0.99] transition-all duration-200 touch-manipulation"
                         >
@@ -172,7 +172,7 @@ export default function CartSlideOver({ isOpen, onClose, storeSlug }: CartSlideO
                         </Link>
                       </motion.div>
                       <Link
-                        href={`/store/${storeSlug}`}
+                        href={'/store/' + storeSlug}
                         onClick={onClose}
                         className="block w-full py-3 rounded-xl font-medium text-center text-slate-300 hover:bg-slate-800 transition-colors"
                       >
