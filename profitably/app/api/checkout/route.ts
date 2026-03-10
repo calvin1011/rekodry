@@ -20,19 +20,20 @@ export async function POST(request: Request) {
         ? String(formShippingAddress.name).trim()
         : ''
 
-    // Store form shipping address in metadata so webhook can use it when Stripe doesn't return shipping_details (e.g. billing used by mistake)
+    // Store form shipping address in metadata so webhook uses it as shipping (not Stripe's collected address)
+    const formLine1 = formShippingAddress && typeof formShippingAddress === 'object'
+      ? (formShippingAddress.line1 || formShippingAddress.address_line1 || '').trim()
+      : ''
     const shippingAddressMeta =
-      formShippingAddress &&
-      typeof formShippingAddress === 'object' &&
-      (formShippingAddress.line1 || formShippingAddress.address_line1)
+      formShippingAddress && typeof formShippingAddress === 'object' && formLine1
         ? JSON.stringify({
-            line1: formShippingAddress.line1 || formShippingAddress.address_line1 || '',
-            line2: formShippingAddress.line2 || formShippingAddress.address_line2 || null,
-            city: formShippingAddress.city || '',
-            state: formShippingAddress.state || '',
-            postal_code: formShippingAddress.postal_code || formShippingAddress.postalCode || '',
-            country: formShippingAddress.country || 'US',
-            name: formShippingAddress.name || null,
+            line1: formLine1,
+            line2: formShippingAddress.line2 ?? formShippingAddress.address_line2 ?? null,
+            city: (formShippingAddress.city || '').trim() || '',
+            state: (formShippingAddress.state || '').trim() || '',
+            postal_code: (formShippingAddress.postal_code || formShippingAddress.postalCode || '').trim() || '',
+            country: (formShippingAddress.country || 'US').trim() || 'US',
+            name: formShippingAddress.name ? String(formShippingAddress.name).trim() : null,
           })
         : undefined
 

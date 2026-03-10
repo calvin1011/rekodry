@@ -46,27 +46,42 @@ export async function POST(request: Request) {
       const customerEmailRaw = session.customer_details?.email || session.customer_email
       const customerEmail = customerEmailRaw?.trim().toLowerCase()
       
-      // Use Stripe-collected shipping address only; never use customer_details.address (that is billing from the card).
-      // Fall back to the address the customer entered on our checkout form (stored in metadata).
-      let shippingAddress =
-        session.shipping_details?.address ||
-        session.collected_information?.shipping_details?.address
+      // Prefer the address the customer entered on our checkout form (stored in metadata).
+      // Only use Stripe-collected address when the form did not provide a valid address.
+      let shippingAddress: { line1: string; line2?: string | null; city: string; state: string; postal_code: string; country: string } | null = null
 
-      if (!shippingAddress?.line1 && metadata.shipping_address) {
+      if (metadata.shipping_address) {
         try {
           const formAddress = JSON.parse(metadata.shipping_address)
-          if (formAddress?.line1) {
+          const line1 = (formAddress?.line1 || formAddress?.address_line1 || '').trim()
+          if (line1) {
             shippingAddress = {
-              line1: formAddress.line1,
-              line2: formAddress.line2 || null,
-              city: formAddress.city || '',
-              state: formAddress.state || '',
-              postal_code: formAddress.postal_code || '',
-              country: formAddress.country || 'US',
+              line1,
+              line2: formAddress.line2 ?? formAddress.address_line2 ?? null,
+              city: (formAddress.city || '').trim() || '',
+              state: (formAddress.state || '').trim() || '',
+              postal_code: (formAddress.postal_code || formAddress.postalCode || '').trim() || '',
+              country: (formAddress.country || 'US').trim() || 'US',
             }
           }
         } catch (_) {
           // ignore parse error
+        }
+      }
+
+      if (!shippingAddress?.line1) {
+        const stripeAddr =
+          session.shipping_details?.address ||
+          session.collected_information?.shipping_details?.address
+        if (stripeAddr && stripeAddr.line1) {
+          shippingAddress = {
+            line1: String(stripeAddr.line1 || ''),
+            line2: stripeAddr.line2 ?? null,
+            city: String(stripeAddr.city || ''),
+            state: String(stripeAddr.state || ''),
+            postal_code: String(stripeAddr.postal_code || ''),
+            country: String(stripeAddr.country || 'US'),
+          }
         }
       }
 
