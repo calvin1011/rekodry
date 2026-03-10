@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
+import { useCart } from '@/lib/cart-context'
 import WishlistButton from './WishlistButton'
 import StarRating from './StarRating'
 
@@ -39,10 +41,28 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, storeSlug, index, customerId }: ProductCardProps) {
+  const router = useRouter()
+  const { addItem } = useCart()
   const mainImage = product.product_images.find((img) => img.position === 0) || product.product_images[0]
   const itemData = Array.isArray(product.items) ? product.items[0] : product.items
   const isOutOfStock = !itemData || itemData.quantity_on_hand === 0
   const isLowStock = itemData && itemData.quantity_on_hand > 0 && itemData.quantity_on_hand <= 3
+  const maxQuantity = itemData?.quantity_on_hand ?? 0
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isOutOfStock) return
+    addItem({
+      product_id: product.id,
+      title: product.title,
+      price: product.price,
+      quantity: 1,
+      image_url: mainImage?.image_url ?? '',
+      max_quantity: maxQuantity,
+    })
+    router.push(`/store/${storeSlug}/checkout`)
+  }
 
   return (
     <Link
@@ -145,6 +165,23 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
         {!isOutOfStock && (
           <div className="mt-3 text-xs text-slate-400">
             {itemData?.quantity_on_hand} available
+          </div>
+        )}
+
+        {!isOutOfStock && (
+          <div
+            className="mt-4 pt-3 border-t border-slate-700/50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.button
+              type="button"
+              onClick={handleBuyNow}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-profit-600 hover:bg-profit-500 active:bg-profit-700 transition-colors"
+            >
+              Buy now
+            </motion.button>
           </div>
         )}
       </div>
