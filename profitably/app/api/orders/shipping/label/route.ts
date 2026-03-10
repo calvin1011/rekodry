@@ -57,13 +57,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    const typedOrder = order as {
-      id: string
+    const raw = order as unknown as {
       order_number: string
       fulfillment_status: string | null
       tracking_number: string | null
-      customers: { email: string; full_name: string }
+      customers: { email: string; full_name: string } | { email: string; full_name: string }[]
     }
+    const customer = Array.isArray(raw.customers) ? raw.customers[0] : raw.customers
 
     const { transaction, error } = await purchaseLabel({
       rateObjectId,
@@ -109,8 +109,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const shouldSendEmail = trackingNumber && !typedOrder.tracking_number
-    if (shouldSendEmail && resend) {
+    const shouldSendEmail = trackingNumber && !raw.tracking_number
+    if (shouldSendEmail && resend && customer) {
       const { data: storeSettings } = await supabase
         .from('store_settings')
         .select('store_name,business_email')
@@ -120,12 +120,12 @@ export async function POST(request: Request) {
       try {
         await resend.emails.send({
           from: resendTrackingFromEmail,
-          to: typedOrder.customers.email,
+          to: customer.email,
           replyTo: storeSettings?.business_email || undefined,
-          subject: `Your Order Has Shipped - ${typedOrder.order_number}`,
+          subject: `Your Order Has Shipped - ${raw.order_number}`,
           html: getShippingNotificationEmailHtml({
-            orderNumber: typedOrder.order_number,
-            customerName: typedOrder.customers.full_name,
+            orderNumber: raw.order_number,
+            customerName: customer.full_name,
             trackingNumber,
             trackingCarrier: carrier,
             trackingUrl: trackingUrlProvider || undefined,
