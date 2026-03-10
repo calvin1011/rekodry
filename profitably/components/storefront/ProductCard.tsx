@@ -49,18 +49,27 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
   const isLowStock = itemData && itemData.quantity_on_hand > 0 && itemData.quantity_on_hand <= 3
   const maxQuantity = itemData?.quantity_on_hand ?? 0
 
+  const cartItem = {
+    product_id: product.id,
+    title: product.title,
+    price: product.price,
+    quantity: 1,
+    image_url: mainImage?.image_url ?? '',
+    max_quantity: maxQuantity,
+  }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isOutOfStock) return
+    addItem(cartItem)
+  }
+
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (isOutOfStock) return
-    addItem({
-      product_id: product.id,
-      title: product.title,
-      price: product.price,
-      quantity: 1,
-      image_url: mainImage?.image_url ?? '',
-      max_quantity: maxQuantity,
-    })
+    addItem(cartItem)
     router.push(`/store/${storeSlug}/checkout`)
   }
 
@@ -170,15 +179,32 @@ export default function ProductCard({ product, storeSlug, index, customerId }: P
 
         {!isOutOfStock && (
           <div
-            className="mt-4 pt-3 border-t border-slate-700/50"
+            className="mt-4 pt-3 border-t border-slate-700/50 flex items-center gap-2"
             onClick={(e) => e.stopPropagation()}
           >
+            <motion.button
+              type="button"
+              onClick={handleAddToCart}
+              whileTap={{ scale: 0.92 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              className="relative flex-shrink-0 p-2.5 rounded-lg border border-slate-600 bg-slate-800/80 text-slate-200 hover:bg-slate-700 hover:border-slate-500 hover:text-white transition-colors"
+              aria-label="Add to cart"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 3h14l1 7h-9l-1 6H5.3M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z" />
+              </svg>
+              <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-profit-500 text-white">
+                <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+              </span>
+            </motion.button>
             <motion.button
               type="button"
               onClick={handleBuyNow}
               whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold text-white bg-profit-600 hover:bg-profit-500 active:bg-profit-700 transition-colors"
+              className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-white bg-profit-600 hover:bg-profit-500 active:bg-profit-700 transition-colors"
             >
               Buy now
             </motion.button>
