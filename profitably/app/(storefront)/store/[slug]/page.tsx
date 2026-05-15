@@ -10,10 +10,10 @@ export default async function StorePage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; search?: string }>
 }) {
   const { slug } = await params
-  const { category: categoryParam } = await searchParams
+  const { category: categoryParam, search: searchParam } = await searchParams
   const supabase = await createClient()
   const adminClient = createAdminClient()
 
@@ -151,6 +151,7 @@ export default async function StorePage({
           customerId={customerId}
           categories={categories}
           selectedCategory={selectedCategory}
+          initialSearchQuery={searchParam || ''}
         />
       </div>
     </div>

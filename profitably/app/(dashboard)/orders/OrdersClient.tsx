@@ -144,24 +144,57 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="glass-dark rounded-xl p-4 animate-slide-up">
-            <p className="text-slate-400 text-sm mb-1">Total Orders</p>
-            <p className="text-2xl font-bold text-slate-100">{totalOrders}</p>
+          <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 animate-slide-up hover:border-slate-700/50 transition-colors">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center">
+                <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Total Orders</p>
+            <p className="text-3xl font-bold text-slate-100">{totalOrders}</p>
           </div>
 
-          <div className="glass-dark rounded-xl p-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <p className="text-slate-400 text-sm mb-1">Total Revenue</p>
-            <p className="text-2xl font-bold gradient-text">{formatCurrency(totalRevenue)}</p>
+          <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 animate-slide-up hover:border-profit-500/30 transition-colors" style={{ animationDelay: '0.1s' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-profit-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-profit-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Total Revenue</p>
+            <p className="text-3xl font-bold text-profit-400">{formatCurrency(totalRevenue)}</p>
           </div>
 
-          <div className="glass-dark rounded-xl p-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <p className="text-slate-400 text-sm mb-1">Paid Orders</p>
-            <p className="text-2xl font-bold text-slate-100">{paidOrders}</p>
+          <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 animate-slide-up hover:border-slate-700/50 transition-colors" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Paid Orders</p>
+            <p className="text-3xl font-bold text-slate-100">{paidOrders}</p>
           </div>
 
-          <div className="glass-dark rounded-xl p-4 animate-slide-up" style={{ animationDelay: '0.3s' }}>
-            <p className="text-slate-400 text-sm mb-1">Unfulfilled</p>
-            <p className="text-2xl font-bold text-amber-400">{unfulfilledOrders}</p>
+          <div className="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-5 animate-slide-up hover:border-amber-500/30 transition-colors" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              {unfulfilledOrders > 0 && (
+                <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-400 rounded-full">
+                  Action needed
+                </span>
+              )}
+            </div>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wider mb-1">Unfulfilled</p>
+            <p className="text-3xl font-bold text-amber-400">{unfulfilledOrders}</p>
           </div>
         </div>
 
@@ -232,60 +265,89 @@ export default function OrdersClient({ initialOrders }: OrdersClientProps) {
             </p>
           </div>
         ) : (
-          <div className="glass-dark rounded-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '0.5s' }}>
+          <div className="bg-slate-900/30 border border-slate-800/50 rounded-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '0.5s' }}>
+            {/* Table Header */}
+            <div className="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between">
+              <p className="text-sm text-slate-400">
+                Showing <span className="font-medium text-slate-200">{filteredOrders.length}</span> of {initialOrders.length} orders
+              </p>
+            </div>
+            
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-slate-800/50 border-b border-slate-700">
-                  <tr>
-                    <th className="text-left py-4 px-6 text-slate-300 font-semibold text-sm">Order</th>
-                    <th className="text-left py-4 px-6 text-slate-300 font-semibold text-sm">Customer</th>
-                    <th className="text-left py-4 px-6 text-slate-300 font-semibold text-sm">Date</th>
-                    <th className="text-left py-4 px-6 text-slate-300 font-semibold text-sm">Payment</th>
-                    <th className="text-left py-4 px-6 text-slate-300 font-semibold text-sm">Fulfillment</th>
-                    <th className="text-right py-4 px-6 text-slate-300 font-semibold text-sm">Total</th>
-                    <th className="text-right py-4 px-6 text-slate-300 font-semibold text-sm">Actions</th>
+                <thead>
+                  <tr className="bg-slate-800/30">
+                    <th className="text-left py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Order</th>
+                    <th className="text-left py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Customer</th>
+                    <th className="text-left py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Date</th>
+                    <th className="text-left py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Payment</th>
+                    <th className="text-left py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Fulfillment</th>
+                    <th className="text-right py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider">Total</th>
+                    <th className="text-right py-3.5 px-6 text-slate-400 font-medium text-xs uppercase tracking-wider"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {filteredOrders.map((order) => (
+                <tbody>
+                  {filteredOrders.map((order, index) => (
                     <tr
                       key={order.id}
-                      className="hover:bg-slate-800/30 transition-colors"
+                      className="border-t border-slate-800/30 hover:bg-slate-800/20 transition-colors group"
                     >
                       <td className="py-4 px-6">
-                        <div className="flex flex-col">
-                          <span className="text-slate-100 font-medium">{order.order_number}</span>
-                          <span className="text-xs text-slate-500">{order.order_items.length} items</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-400 group-hover:bg-profit-500/20 group-hover:text-profit-400 transition-colors">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-100">{order.order_number}</p>
+                            <p className="text-xs text-slate-500">{order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}</p>
+                          </div>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex flex-col">
-                          <span className="text-slate-100 font-medium">{order.customers.full_name}</span>
-                          <span className="text-xs text-slate-500">{order.customers.email}</span>
+                        <div>
+                          <p className="text-sm font-medium text-slate-200">{order.customers.full_name}</p>
+                          <p className="text-xs text-slate-500">{order.customers.email}</p>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-slate-300 text-sm">{formatDate(order.created_at)}</span>
+                        <span className="text-sm text-slate-300">{formatDate(order.created_at)}</span>
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-block px-2 py-1 text-xs rounded-lg border ${getStatusColor(order.payment_status)}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(order.payment_status)}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            order.payment_status === 'paid' ? 'bg-profit-400' :
+                            order.payment_status === 'pending' ? 'bg-amber-400' :
+                            order.payment_status === 'cancelled' ? 'bg-red-400' :
+                            order.payment_status === 'refunded' ? 'bg-purple-400' : 'bg-slate-400'
+                          }`} />
                           {getStatusLabel(order.payment_status)}
                         </span>
                       </td>
                       <td className="py-4 px-6">
-                        <span className={`inline-block px-2 py-1 text-xs rounded-lg border ${getFulfillmentColor(order.fulfillment_status)}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full ${getFulfillmentColor(order.fulfillment_status)}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            order.fulfillment_status === 'fulfilled' ? 'bg-profit-400' :
+                            order.fulfillment_status === 'shipped' ? 'bg-blue-400' :
+                            order.fulfillment_status === 'delivered' ? 'bg-green-400' :
+                            order.fulfillment_status === 'pending' ? 'bg-amber-400' : 'bg-slate-400'
+                          }`} />
                           {getFulfillmentLabel(order.fulfillment_status)}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <span className="text-slate-100 font-semibold">{formatCurrency(order.total)}</span>
+                        <span className="text-sm font-semibold text-slate-100">{formatCurrency(order.total)}</span>
                       </td>
                       <td className="py-4 px-6 text-right">
                         <Link
                           href={`/orders/${order.id}`}
-                          className="text-profit-400 hover:text-profit-300 text-sm font-medium transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-400 hover:text-profit-400 hover:bg-profit-500/10 rounded-lg transition-all"
                         >
-                          View Details →
+                          View
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
                         </Link>
                       </td>
                     </tr>
