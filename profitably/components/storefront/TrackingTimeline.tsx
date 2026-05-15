@@ -66,8 +66,7 @@ export default function TrackingTimeline({
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(null)
+
     const params = new URLSearchParams({ tracking_number: trackingNumber })
     if (trackingCarrier?.trim()) params.set('carrier', trackingCarrier.trim())
 

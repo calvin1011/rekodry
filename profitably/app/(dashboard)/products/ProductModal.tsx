@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
 import { convertHeicToJpegIfNeeded, isHeic } from '@/lib/image-upload'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface AvailableItem {
   id: string
@@ -526,11 +527,12 @@ export default function ProductModal({ isOpen, onClose, productToEdit, available
                 {images.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
                     {images.map((img, index) => (
-                      <div key={index} className="relative group">
-                        <img
+                      <div key={index} className="relative group h-32 overflow-hidden rounded-lg bg-slate-800">
+                        <RemoteImage
                           src={img.url}
                           alt={img.alt || `Product image ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg bg-slate-800"
+                          fill
+                          className="object-cover"
                         />
                         <button
                           type="button"

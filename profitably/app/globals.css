@@ -109,3 +109,55 @@
 .animate-pulse-heartbeat {
   animation: pulse-heartbeat 2s ease-in-out infinite;
 }
+
+/* Header scroll transitions */
+.header-scrolled {
+  --header-bg: rgb(2 6 23 / 0.98);
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.3);
+}
+
+/* Search bar glow */
+.search-glow:focus-within {
+  box-shadow: 0 0 0 2px rgb(16 185 129 / 0.3), 0 4px 20px rgb(16 185 129 / 0.15);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgb(0 0 0 / 0.25);
+}
+
+/* Badge pulse */
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+.animate-badge-pulse {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(30 41 59) 0%,
+    rgb(51 65 85) 50%,
+    rgb(30 41 59) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Trust badge styling */
+.trust-badge {
+  background: linear-gradient(135deg, rgb(16 185 129 / 0.1) 0%, rgb(5 150 105 / 0.05) 100%);
+  border: 1px solid rgb(16 185 129 / 0.2);
+}

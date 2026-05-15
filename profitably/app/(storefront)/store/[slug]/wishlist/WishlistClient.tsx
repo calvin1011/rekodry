@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import { useCart } from '@/lib/cart-context'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface WishlistItem {
   id: string
@@ -112,10 +113,11 @@ export default function WishlistClient({ wishlistItems: initialItems, storeSlug,
             <Link href={`/store/${storeSlug}/products/${product.slug}`}>
               <div className="relative aspect-square bg-slate-800 overflow-hidden">
                 {mainImage ? (
-                  <img
+                  <RemoteImage
                     src={mainImage.image_url}
                     alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

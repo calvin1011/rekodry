@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { convertHeicToJpegIfNeeded, isHeic } from '@/lib/image-upload'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface StoreSettings {
   id: string
@@ -247,7 +248,7 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">
-                <p className="text-blue-400 font-semibold mb-2">Welcome! Let's set up your store</p>
+                <p className="text-blue-400 font-semibold mb-2">Welcome! Let&apos;s set up your store</p>
                 <p className="text-sm text-slate-300 mb-3">
                   Complete these steps to launch your storefront:
                 </p>
@@ -255,10 +256,10 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
                   <li>Choose a <strong className="text-slate-300">store name</strong> and <strong className="text-slate-300">URL slug</strong></li>
                   <li>Add your <strong className="text-slate-300">contact email</strong> so customers can reach you</li>
                   <li>Set your <strong className="text-slate-300">shipping rate</strong> and processing time</li>
-                  <li>Toggle <strong className="text-slate-300">"Activate Store"</strong> at the bottom when ready</li>
+                  <li>Toggle <strong className="text-slate-300">&quot;Activate Store&quot;</strong> at the bottom when ready</li>
                 </ol>
                 <p className="text-xs text-slate-500 mt-3">
-                  Tip: Policies are optional — we'll use sensible defaults if you leave them blank.
+                  Tip: Policies are optional — we&apos;ll use sensible defaults if you leave them blank.
                 </p>
               </div>
             </div>
@@ -351,11 +352,12 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
                     className="hidden"
                   />
                   {logoUrl ? (
-                    <div className="relative group">
-                      <img
+                    <div className="relative group h-32 w-full rounded-lg border border-slate-700 bg-slate-800/50">
+                      <RemoteImage
                         src={logoUrl}
                         alt="Store logo"
-                        className="w-full h-32 object-contain rounded-lg bg-slate-800/50 border border-slate-700"
+                        fill
+                        className="object-contain p-2"
                       />
                       <button
                         type="button"
@@ -400,11 +402,12 @@ export default function StoreSettingsClient({ initialSettings }: StoreSettingsCl
                     className="hidden"
                   />
                   {bannerUrl ? (
-                    <div className="relative group">
-                      <img
+                    <div className="relative group h-32 w-full overflow-hidden rounded-lg border border-slate-700 bg-slate-800/50">
+                      <RemoteImage
                         src={bannerUrl}
                         alt="Store banner"
-                        className="w-full h-32 object-cover rounded-lg bg-slate-800/50 border border-slate-700"
+                        fill
+                        className="object-cover"
                       />
                       <button
                         type="button"

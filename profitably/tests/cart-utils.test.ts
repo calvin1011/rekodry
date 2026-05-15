@@ -8,7 +8,7 @@ import {
   type CartItemLike,
 } from '../lib/cart-utils'
 
-const CART_SLIDE_OVER_PATH = join(__dirname, '../components/storefront/CartSlideOver.tsx')
+const CART_SLIDE_OVER_CLASSES_PATH = join(__dirname, '../components/storefront/CartSlideOver.classes.ts')
 
 const createItem = (overrides: Partial<CartItemLike> = {}): CartItemLike => ({
   product_id: 'p1',
@@ -80,7 +80,7 @@ describe('addItemToCart', () => {
 
 describe('Phase 1 Cart UI (CartSlideOver)', () => {
   it('uses solid panel (100% opacity) and cover-style overlay', () => {
-    const source = readFileSync(CART_SLIDE_OVER_PATH, 'utf-8')
+    const source = readFileSync(CART_SLIDE_OVER_CLASSES_PATH, 'utf-8')
     expect(source).toContain('bg-slate-950/90')
     expect(source).toMatch(/bg-slate-950[^/]/)
   })

@@ -5,6 +5,7 @@ import { formatCurrency } from '@/lib/utils'
 import OrderQuickActions from '@/components/storefront/OrderQuickActions'
 import TrackingTimeline from '@/components/storefront/TrackingTimeline'
 import { getSession } from '../../actions'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 export default async function OrderDetailPage({
   params
@@ -164,6 +165,7 @@ export default async function OrderDetailPage({
               )}
             </div>
             <TrackingTimeline
+              key={`${order.tracking_number}-${order.tracking_carrier ?? ''}`}
               trackingNumber={order.tracking_number}
               trackingCarrier={order.tracking_carrier}
               trackingUrl={order.tracking_url}
@@ -179,12 +181,13 @@ export default async function OrderDetailPage({
           <div className="divide-y divide-slate-800">
             {order.order_items.map((item: any) => (
               <div key={item.id} className="p-6 flex items-start sm:items-center gap-4">
-                <div className="w-16 h-16 bg-slate-800 rounded-lg flex-shrink-0 overflow-hidden border border-slate-700">
+                <div className="relative w-16 h-16 bg-slate-800 rounded-lg flex-shrink-0 overflow-hidden border border-slate-700">
                   {item.products?.product_images?.[0]?.image_url ? (
-                    <img
+                    <RemoteImage
                       src={item.products.product_images[0].image_url}
                       alt={item.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-600">

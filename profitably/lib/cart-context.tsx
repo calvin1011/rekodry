@@ -1,6 +1,14 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  ReactNode,
+} from 'react'
 import { addItemToCart, computeSubtotal, computeItemCount } from './cart-utils'
 
 export interface CartItem {
@@ -38,7 +46,7 @@ function storageKey(storeSlug: string | null): string {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [storeSlug, setStoreSlugState] = useState<string | null>(null)
-  const [mounted, setMounted] = useState(false)
+  const [clientReady, setClientReady] = useState(false)
   const customerLoggedInRef = useRef(false)
   const justHydratedRef = useRef(false)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -47,41 +55,52 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setStoreSlugState(slug)
   }, [])
 
-  // Initial load from localStorage (backward compat: single 'cart' key when no store set yet)
+  // Initial load: legacy `cart` key. State updates only inside async continuations (not sync in effect body).
   useEffect(() => {
-    setMounted(true)
-    const key = storageKey(null)
-    const saved = localStorage.getItem(key)
-    if (saved) {
+    let cancelled = false
+    void (async () => {
+      let initial: CartItem[] = []
       try {
-        const parsed = JSON.parse(saved) as CartItem[]
-        if (Array.isArray(parsed)) setItems(parsed)
+        const key = storageKey(null)
+        const saved = localStorage.getItem(key)
+        if (saved) {
+          const parsed = JSON.parse(saved) as CartItem[]
+          if (Array.isArray(parsed)) initial = parsed
+        }
       } catch (error) {
         console.error('Failed to parse cart from localStorage:', error)
       }
+      if (!cancelled) {
+        setItems(initial)
+        setClientReady(true)
+      }
+    })()
+    return () => {
+      cancelled = true
     }
   }, [])
 
-  // When store slug is set: load from localStorage for this store (fallback to legacy 'cart'), then fetch server cart and use as source of truth if logged in
   useEffect(() => {
-    if (!mounted || !storeSlug) return
-
-    const key = storageKey(storeSlug)
-    let saved = localStorage.getItem(key)
-    if (!saved) saved = localStorage.getItem('cart') // legacy key for first-time after deploy
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as CartItem[]
-        if (Array.isArray(parsed)) setItems(parsed)
-      } catch {
-        // ignore
-      }
-    }
+    if (!clientReady || !storeSlug) return
 
     let cancelled = false
-    fetch(`/api/cart?store_slug=${encodeURIComponent(storeSlug)}`)
-      .then((res) => res.json())
-      .then((data: { items?: CartItem[]; loggedIn?: boolean }) => {
+
+    void (async () => {
+      try {
+        const key = storageKey(storeSlug)
+        let saved = localStorage.getItem(key)
+        if (!saved) saved = localStorage.getItem('cart')
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved) as CartItem[]
+            if (!cancelled && Array.isArray(parsed)) setItems(parsed)
+          } catch {
+            // ignore
+          }
+        }
+
+        const res = await fetch(`/api/cart?store_slug=${encodeURIComponent(storeSlug)}`)
+        const data = (await res.json()) as { items?: CartItem[]; loggedIn?: boolean }
         if (cancelled) return
         const loggedIn = !!data.loggedIn
         customerLoggedInRef.current = loggedIn
@@ -89,24 +108,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
           justHydratedRef.current = true
           setItems(data.items)
         }
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) customerLoggedInRef.current = false
-      })
+      }
+    })()
 
     return () => {
       cancelled = true
     }
-  }, [mounted, storeSlug])
+  }, [clientReady, storeSlug])
 
-  // Persist to localStorage whenever items change
   useEffect(() => {
-    if (!mounted) return
+    if (!clientReady) return
     const key = storageKey(storeSlug)
     localStorage.setItem(key, JSON.stringify(items))
-  }, [items, mounted, storeSlug])
+  }, [items, clientReady, storeSlug])
 
-  // When items change and user is logged in, debounced save to server
   useEffect(() => {
     if (!storeSlug || !customerLoggedInRef.current) return
     if (justHydratedRef.current) {
@@ -145,20 +162,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((current) => current.filter((i) => i.product_id !== product_id))
   }, [])
 
-  const updateQuantity = useCallback((product_id: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(product_id)
-      return
-    }
-    setItems((current) =>
-      current.map((i) => {
-        if (i.product_id === product_id) {
-          return { ...i, quantity: Math.min(quantity, i.max_quantity) }
-        }
-        return i
-      })
-    )
-  }, [removeItem])
+  const updateQuantity = useCallback(
+    (product_id: string, quantity: number) => {
+      if (quantity <= 0) {
+        removeItem(product_id)
+        return
+      }
+      setItems((current) =>
+        current.map((i) => {
+          if (i.product_id === product_id) {
+            return { ...i, quantity: Math.min(quantity, i.max_quantity) }
+          }
+          return i
+        })
+      )
+    },
+    [removeItem]
+  )
 
   const clearCart = useCallback(() => {
     setItems([])

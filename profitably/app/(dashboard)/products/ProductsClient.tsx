@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductModal from './ProductModal'
 import { formatCurrency } from '@/lib/utils'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface Item {
   id: string
@@ -276,11 +277,12 @@ export default function ProductsClient({ initialProducts, availableItems }: Prod
                 </div>
 
                 {product.product_images.length > 0 && (
-                  <div className="mb-4 rounded-lg overflow-hidden bg-slate-800">
-                    <img
+                  <div className="relative mb-4 h-48 overflow-hidden rounded-lg bg-slate-800">
+                    <RemoteImage
                       src={product.product_images[0].image_url}
                       alt={product.product_images[0].alt_text || product.title}
-                      className="w-full h-48 object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </div>
                 )}

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface Customer {
   id: string
@@ -440,10 +441,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                     >
                       <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0">
                         {mainImage ? (
-                          <img
+                          <RemoteImage
                             src={mainImage.image_url}
                             alt={item.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
