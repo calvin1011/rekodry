@@ -52,7 +52,7 @@ export default function ContactForm({ storeSlug }: { storeSlug: string }) {
         </div>
         <h3 className="text-xl font-bold text-slate-100 mb-2">Message Sent!</h3>
         <p className="text-slate-400">
-          Thank you for reaching out. We'll get back to you within 24 hours.
+          Thank you for reaching out. We&apos;ll get back to you within 24 hours.
         </p>
       </div>
     )

@@ -6,6 +6,7 @@ import StorefrontSidebar from '@/components/storefront/StorefrontSidebar'
 import ProductRequestDialog from '@/components/storefront/ProductRequestDialog'
 import CartStoreSlugSync from '@/components/storefront/CartStoreSlugSync'
 import { StorefrontMobileProvider } from '@/components/storefront/StorefrontMobileContext'
+import { RemoteImage } from '@/components/media/RemoteImage'
 import React from "react";
 
 export default async function StoreLayout({
@@ -51,7 +52,13 @@ export default async function StoreLayout({
             <div className="lg:col-span-1">
               <Link href={`/store/${slug}`} className="inline-flex items-center gap-2 mb-4">
                 {store.logo_url ? (
-                  <img src={store.logo_url} alt={store.store_name} className="h-10 w-auto" />
+                  <RemoteImage
+                    src={store.logo_url}
+                    alt={store.store_name}
+                    width={240}
+                    height={80}
+                    className="h-10 w-auto object-contain"
+                  />
                 ) : (
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-profit-500 to-profit-600 flex items-center justify-center">
                     <span className="text-white font-bold text-lg">{store.store_name.charAt(0)}</span>

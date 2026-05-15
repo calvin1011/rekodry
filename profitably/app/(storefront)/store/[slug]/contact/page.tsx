@@ -27,7 +27,7 @@ export default async function ContactPage({
         <div className="text-center mb-10">
           <h1 className="text-3xl font-bold text-slate-100 mb-3">Contact Us</h1>
           <p className="text-slate-400">
-            Have a question or concern? We're here to help.
+            Have a question or concern? We&apos;re here to help.
           </p>
         </div>
 

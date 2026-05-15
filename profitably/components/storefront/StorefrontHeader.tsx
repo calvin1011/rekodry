@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import CartIcon from '@/components/storefront/CartIcon'
 import { useStorefrontMobile } from '@/components/storefront/StorefrontMobileContext'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 type Store = {
   logo_url: string | null
@@ -108,9 +109,11 @@ export default function StorefrontHeader({
             className="flex items-center gap-2 shrink-0"
           >
             {store.logo_url ? (
-              <img
+              <RemoteImage
                 src={store.logo_url}
                 alt={store.store_name}
+                width={240}
+                height={80}
                 className={`transition-all duration-300 ${isScrolled ? 'h-8' : 'h-10'} w-auto object-contain`}
               />
             ) : (
@@ -173,9 +176,11 @@ export default function StorefrontHeader({
             className="flex items-center gap-3 shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-profit-500 text-slate-100 hover:text-profit-400 transition-colors group"
           >
             {store.logo_url ? (
-              <img
+              <RemoteImage
                 src={store.logo_url}
                 alt={store.store_name}
+                width={240}
+                height={80}
                 className={`transition-all duration-300 ${isScrolled ? 'h-9' : 'h-11'} w-auto object-contain`}
               />
             ) : (

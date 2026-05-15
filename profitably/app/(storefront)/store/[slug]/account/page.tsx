@@ -293,7 +293,7 @@ export default async function AccountPage({
                   </svg>
                 </div>
                 <p className="text-slate-300 font-medium mb-1">No orders yet</p>
-                <p className="text-slate-500 text-sm mb-6">You haven't placed any orders with this store yet.</p>
+                <p className="text-slate-500 text-sm mb-6">You haven&apos;t placed any orders with this store yet.</p>
                 <Link
                   href={`/store/${slug}`}
                   className="px-6 py-2 bg-profit-600 hover:bg-profit-500 text-white rounded-lg transition-colors inline-block"

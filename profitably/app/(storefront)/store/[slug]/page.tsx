@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import ProductGrid from '@/components/storefront/ProductGrid'
 import VisitTracker from '@/components/storefront/VisitTracker'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 export default async function StorePage({
   params,
@@ -124,11 +125,13 @@ export default async function StorePage({
     <div className="min-h-screen bg-gradient-dark">
       <VisitTracker storeSlug={slug} />
       {store.banner_url && (
-        <div className="w-full h-48 md:h-64 overflow-hidden">
-          <img
+        <div className="relative w-full h-48 md:h-64 overflow-hidden">
+          <RemoteImage
             src={store.banner_url}
             alt={store.store_name}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
           />
         </div>
       )}

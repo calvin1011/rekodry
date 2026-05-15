@@ -186,6 +186,7 @@ export default async function DashboardPage() {
           <div className="space-y-6">
             {storeSlug && (
               <StoreVisitWidget
+                key={`${storeSlug}-${visitTodayCount}-${visitTotalCount}`}
                 storeSlug={storeSlug}
                 todayCount={visitTodayCount}
                 totalCount={visitTotalCount}

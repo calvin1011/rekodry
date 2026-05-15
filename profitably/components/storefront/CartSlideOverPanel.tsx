@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { cartSlideOverClasses as CN } from './CartSlideOver.classes'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 type CartItem = {
   product_id: string
@@ -73,7 +74,7 @@ export function CartSlideOverPanel({
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-semibold text-slate-100">Your cart is empty</h3>
-              <p className="text-slate-400 text-sm max-w-xs mx-auto">Looks like you haven't added anything to your cart yet.</p>
+              <p className="text-slate-400 text-sm max-w-xs mx-auto">Looks like you haven&apos;t added anything to your cart yet.</p>
             </div>
             <Link
               href={storePath}
@@ -94,7 +95,7 @@ export function CartSlideOverPanel({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-profit-400 font-medium">You've unlocked FREE shipping!</span>
+                  <span className="text-profit-400 font-medium">You&apos;ve unlocked FREE shipping!</span>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -133,10 +134,11 @@ export function CartSlideOverPanel({
                     className="flex gap-4 p-3 bg-slate-900/40 border border-slate-800/50 rounded-xl hover:bg-slate-900/60 transition-colors"
                   >
                     <div className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border border-slate-700/50 bg-slate-800">
-                      <img
+                      <RemoteImage
                         src={item.image_url}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <div className="flex-1 flex flex-col min-w-0">

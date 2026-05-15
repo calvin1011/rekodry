@@ -6,7 +6,9 @@ import { useCart } from '@/lib/cart-context'
 import { formatCurrency } from '@/lib/utils'
 import { loadStripe } from '@stripe/stripe-js';
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import AccountLoginForm from '@/app/(storefront)/store/[slug]/account/AccountLoginForm'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface StoreSettings {
   id: string
@@ -25,6 +27,7 @@ interface CheckoutClientProps {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CheckoutClient({ store, storeSlug, prefillEmail = null }: CheckoutClientProps) {
+  const router = useRouter()
   // Added updateQuantity and removeItem to the destructuring
   const { items, subtotal, updateQuantity, removeItem } = useCart()
   const [loading, setLoading] = useState(false)
@@ -96,7 +99,12 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
       }
 
       if (data.url) {
-        window.location.href = data.url;
+        const url = data.url as string
+        if (url.startsWith('https://') || url.startsWith('http://') || url.startsWith('//')) {
+          window.location.replace(url)
+        } else {
+          router.push(url)
+        }
       } else {
         throw new Error("No checkout URL returned");
       }
@@ -254,7 +262,7 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
                       placeholder="john@example.com"
                     />
                   </div>
-                  <p className="mt-1.5 text-xs text-slate-500">We'll send your order confirmation here</p>
+                  <p className="mt-1.5 text-xs text-slate-500">We&apos;ll send your order confirmation here</p>
                 </div>
 
                 {/* Address Line 1 */}
@@ -403,6 +411,7 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
                 {loading ? 'Processing...' : `Pay ${formatCurrency(total)}`}
               </motion.button>
             </form>
+            </div>
           </div>
 
           {/* Order Summary Column */}
@@ -421,10 +430,11 @@ export default function CheckoutClient({ store, storeSlug, prefillEmail = null }
                     className="flex gap-3 p-3 rounded-xl bg-slate-800/30 border border-slate-700/30"
                   >
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0">
-                      <img
+                      <RemoteImage
                         src={item.image_url}
                         alt={item.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-slate-700 rounded-full flex items-center justify-center text-xs font-medium text-slate-200">
                         {item.quantity}

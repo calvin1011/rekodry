@@ -10,13 +10,13 @@ describe('Phase 3 Storefront (Mobile: hamburger left, store name center, no sepa
     const source = readFileSync(STOREFRONT_HEADER_PATH, 'utf-8')
     expect(source).toMatch(/aria-label=["']Open menu["']/)
     expect(source).toContain('M4 6h16M4 12h16M4 18h16')
-    expect(source).toMatch(/md:hidden.*grid|grid.*md:hidden/)
+    expect(source).toMatch(/md:hidden[^\n]*\bflex\b/)
   })
 
-  it('header centers store name on mobile (grid center column)', () => {
+  it('header shows store branding on mobile next to hamburger (flex row)', () => {
     const source = readFileSync(STOREFRONT_HEADER_PATH, 'utf-8')
-    expect(source).toMatch(/grid-cols-3/)
-    expect(source).toMatch(/justify-center|text-center/)
+    expect(source).toMatch(/md:hidden flex items-center h-14/)
+    expect(source).toContain('store.logo_url ?')
   })
 
   it('sidebar has no separate Menu bar (no sticky top-16 bar with "Menu" button)', () => {

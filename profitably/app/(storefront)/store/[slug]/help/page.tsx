@@ -164,7 +164,7 @@ export default async function HelpPage({
         <div className="mt-10 glass-dark rounded-2xl p-8 border border-slate-800 text-center">
           <h2 className="text-xl font-bold text-slate-100 mb-3">Still have questions?</h2>
           <p className="text-slate-400 mb-6">
-            We're here to help! Reach out to us and we'll get back to you within 24 hours.
+            We&apos;re here to help! Reach out to us and we&apos;ll get back to you within 24 hours.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

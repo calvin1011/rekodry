@@ -9,6 +9,7 @@ import ProductCard from './ProductCard'
 import ReviewsSection from './ReviewsSection'
 import StarRating from './StarRating'
 import WishlistButton from './WishlistButton'
+import { RemoteImage } from '@/components/media/RemoteImage'
 
 interface ProductImage {
   id: string
@@ -191,15 +192,18 @@ export default function ProductDetailClient({
             >
               {sortedImages.length > 0 ? (
                 <>
-                  <img
+                  <RemoteImage
                     src={sortedImages[selectedImage]?.image_url}
                     alt={sortedImages[selectedImage]?.alt_text || product.title}
-                    className={`w-full h-full object-cover transition-transform duration-200 ${
+                    fill
+                    className={`object-cover transition-transform duration-200 ${
                       isZoomed ? 'scale-150' : 'scale-100'
                     }`}
-                    style={isZoomed ? {
-                      transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
-                    } : undefined}
+                    style={
+                      isZoomed
+                        ? { transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%` }
+                        : undefined
+                    }
                   />
                   {/* Zoom indicator */}
                   <div className={`absolute bottom-4 right-4 px-3 py-1.5 bg-slate-900/80 backdrop-blur-sm rounded-lg text-xs text-slate-300 flex items-center gap-1.5 transition-opacity ${isZoomed ? 'opacity-0' : 'opacity-100'}`}>
@@ -246,10 +250,11 @@ export default function ProductDetailClient({
                         : 'ring-1 ring-slate-700 hover:ring-slate-500 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img
+                    <RemoteImage
                       src={img.image_url}
                       alt={img.alt_text || `${product.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </button>
                 ))}

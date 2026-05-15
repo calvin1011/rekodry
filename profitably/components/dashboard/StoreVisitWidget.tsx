@@ -26,11 +26,6 @@ export default function StoreVisitWidget({
   const [totalCount, setTotalCount] = useState(initialTotal)
 
   useEffect(() => {
-    setTodayCount(initialToday)
-    setTotalCount(initialTotal)
-  }, [initialToday, initialTotal])
-
-  useEffect(() => {
     if (!storeSlug) return
     const supabase = createClient()
     const today = formatToday()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import StarRating from './StarRating'
 
 interface Review {
@@ -51,14 +51,7 @@ export default function ReviewsSection({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  useEffect(() => {
-    fetchReviews()
-    if (customerId) {
-      checkExistingReview()
-    }
-  }, [productId, customerId])
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       const res = await fetch(`/api/reviews?productId=${productId}`)
       const data = await res.json()
@@ -70,9 +63,10 @@ export default function ReviewsSection({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [productId])
 
-  const checkExistingReview = async () => {
+  const checkExistingReview = useCallback(async () => {
+    if (!customerId) return
     try {
       const res = await fetch(`/api/reviews?productId=${productId}&customerId=${customerId}`)
       const data = await res.json()
@@ -83,7 +77,14 @@ export default function ReviewsSection({
     } catch (error) {
       console.error('Error checking existing review:', error)
     }
-  }
+  }, [productId, customerId])
+
+  useEffect(() => {
+    void fetchReviews()
+    if (customerId) {
+      void checkExistingReview()
+    }
+  }, [customerId, checkExistingReview, fetchReviews])
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()

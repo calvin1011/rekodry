@@ -139,7 +139,10 @@ export default function ProductGrid({ products, storeSlug, customerId, categorie
                 <span className="text-slate-500"> in <span className="text-profit-400">{selectedCategory}</span></span>
               )}
               {searchQuery && (
-                <span className="text-slate-500"> for "<span className="text-slate-300">{searchQuery}</span>"</span>
+                <span className="text-slate-500">
+                  {' '}
+                  for &quot;<span className="text-slate-300">{searchQuery}</span>&quot;
+                </span>
               )}
             </p>
           </div>
@@ -216,7 +219,9 @@ export default function ProductGrid({ products, storeSlug, customerId, categorie
             <svg className="w-4 h-4 text-profit-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <span className="text-sm text-slate-300">Showing results for "<span className="font-medium text-profit-400">{searchQuery}</span>"</span>
+            <span className="text-sm text-slate-300">
+              Showing results for &quot;<span className="font-medium text-profit-400">{searchQuery}</span>&quot;
+            </span>
             <button
               onClick={() => setSearchQuery('')}
               className="ml-auto text-sm text-slate-400 hover:text-slate-200 transition-colors"

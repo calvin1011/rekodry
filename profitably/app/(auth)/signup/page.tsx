@@ -100,7 +100,7 @@ export default function SignupPage() {
               </div>
               <h3 className="text-xl font-semibold text-slate-100 mb-2">Check your email!</h3>
               <p className="text-slate-400 mb-4">
-                We've sent a confirmation link to <span className="text-profit-400 font-medium">{email}</span>
+                We&apos;ve sent a confirmation link to <span className="text-profit-400 font-medium">{email}</span>
               </p>
               <p className="text-sm text-slate-500 mb-6">
                 Click the link in the email to verify your account and get started.
